@@ -34,16 +34,68 @@ const TeacherStudents = () => {
         return studentEnrollments.map(e => classes.find(c => c.id === e.classId)).filter(Boolean);
     };
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+    const [isGradeModalOpen, setIsGradeModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [studentSearch, setStudentSearch] = useState('');
+    const [gradingStudent, setGradingStudent] = useState(null);
+    const [grades, setGrades] = useState({ p1: '', p2: '', p3: '' });
+    const { updateGrade } = useData();
+
+    const handleOpenGradeModal = (studentId) => {
+        // Find enrollment for this student and current class
+        const targetClassId = myClasses[0]?.id; // Assuming teacher manages one class mainly or selecting context
+        const enrollment = enrollments.find(e => e.studentId === studentId && e.classId === targetClassId);
+
+        if (enrollment) {
+            setGradingStudent({
+                id: studentId,
+                name: students.find(s => s.id === studentId)?.name,
+                enrollmentId: enrollment.id
+            });
+            setGrades({
+                p1: enrollment.p1 || '',
+                p2: enrollment.p2 || '',
+                p3: enrollment.p3 || ''
+            });
+            setIsGradeModalOpen(true);
+        }
+    };
+
+    const handleGradeSubmit = async (e) => {
+        e.preventDefault();
+
+        const formatVal = (val) => (val === '' || val === null) ? null : parseFloat(val);
+
+        const p1 = formatVal(grades.p1);
+        const p2 = formatVal(grades.p2);
+        const p3 = formatVal(grades.p3);
+
+        // Calculate final only if all partials are present
+        let final = null;
+        if (p1 !== null && p2 !== null && p3 !== null) {
+            final = ((p1 + p2 + p3) / 3).toFixed(1);
+        }
+
+        const success = await updateGrade(gradingStudent.enrollmentId, {
+            p1: p1,
+            p2: p2,
+            p3: p3,
+            final: final
+        });
+
+        if (success) {
+            setIsGradeModalOpen(false);
+            setGradingStudent(null);
+        }
+    };
 
     const handleEnroll = async (e) => {
         e.preventDefault();
         const targetClassId = myClasses[0]?.id;
         if (targetClassId && selectedStudent) {
             await enrollStudent(parseInt(selectedStudent), parseInt(targetClassId));
-            setIsModalOpen(false);
+            setIsEnrollModalOpen(false);
             setSelectedStudent('');
             setStudentSearch('');
         }
@@ -72,7 +124,7 @@ const TeacherStudents = () => {
                     className="btn btn-primary"
                     onClick={() => {
                         if (myClasses.length > 0) {
-                            setIsModalOpen(true);
+                            setIsEnrollModalOpen(true);
                         } else {
                             alert("No tienes clases asignadas para agregar alumnos.");
                         }
@@ -134,9 +186,15 @@ const TeacherStudents = () => {
                                 ))}
                             </div>
 
-                            <div className="mt-auto pt-4 border-t w-full">
+                            <div className="mt-auto pt-4 border-t w-full flex gap-2">
+                                <button
+                                    className="btn btn-primary w-full justify-center text-sm"
+                                    onClick={() => handleOpenGradeModal(student.id)}
+                                >
+                                    Calificar
+                                </button>
                                 <button className="btn btn-secondary w-full justify-center text-sm">
-                                    <Mail size={16} /> Contactar
+                                    <Mail size={16} />
                                 </button>
                             </div>
                         </div>
@@ -145,7 +203,7 @@ const TeacherStudents = () => {
             </div>
 
             {/* Modal for enrolling students */}
-            {isModalOpen && (
+            {isEnrollModalOpen && (
                 <div style={{
                     position: 'fixed',
                     top: 0, left: 0, right: 0, bottom: 0,
@@ -155,7 +213,7 @@ const TeacherStudents = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1000
-                }} onClick={() => setIsModalOpen(false)}>
+                }} onClick={() => setIsEnrollModalOpen(false)}>
                     <div
                         className="glass-panel"
                         style={{ width: '100%', maxWidth: '500px', padding: '2rem', background: '#1e293b' }}
@@ -224,11 +282,88 @@ const TeacherStudents = () => {
                                 )}
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsEnrollModalOpen(false)}>
                                     Cancelar
                                 </button>
                                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
                                     Agregar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Scale user grade modal */}
+            {isGradeModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    backdropFilter: 'blur(5px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }} onClick={() => setIsGradeModalOpen(false)}>
+                    <div
+                        className="glass-panel"
+                        style={{ width: '100%', maxWidth: '400px', padding: '2rem', background: '#1e293b' }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h2 style={{ marginBottom: '1.5rem' }}>Calificar Alumno</h2>
+                        <p style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>
+                            Alumno: <span style={{ color: 'var(--accent)' }}>{gradingStudent?.name}</span>
+                        </p>
+                        <form onSubmit={handleGradeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 1</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="10"
+                                        className="glass-panel"
+                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
+                                        value={grades.p1}
+                                        onChange={(e) => setGrades({ ...grades, p1: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 2</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="10"
+                                        className="glass-panel"
+                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
+                                        value={grades.p2}
+                                        onChange={(e) => setGrades({ ...grades, p2: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 3</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="10"
+                                        className="glass-panel"
+                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
+                                        value={grades.p3}
+                                        onChange={(e) => setGrades({ ...grades, p3: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsGradeModalOpen(false)}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                                    Guardar
                                 </button>
                             </div>
                         </form>

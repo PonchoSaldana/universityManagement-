@@ -71,9 +71,15 @@ const StudentSubjects = () => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <button className="btn btn-secondary" style={{ padding: '0.5rem' }}>
+                                        <a
+                                            href={`http://localhost:3000${material.url}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-secondary"
+                                            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >
                                             <Download size={20} />
-                                        </button>
+                                        </a>
                                     </div>
                                 ))
                             ) : (

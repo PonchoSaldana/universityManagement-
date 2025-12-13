@@ -6,7 +6,7 @@ import { useData } from '../context/DataContext';
 
 const StudentDashboard = () => {
     const { user } = useAuth();
-    const { classes, enrollments, students } = useData();
+    const { classes, enrollments, students, announcements } = useData();
 
     // Get student's enrolled classes
     const currentStudent = students.find(s => s.user_id === user?.id);
@@ -15,12 +15,27 @@ const StudentDashboard = () => {
     const myEnrollments = enrollments ? enrollments.filter(e => e.studentId === studentId) : [];
     const myClasses = myEnrollments.map(e => classes.find(c => c.id === e.classId)).filter(Boolean);
 
-    // Mock grades for the enrolled classes
-    const grades = myClasses.map((cls, idx) => ({
-        subject: cls.name,
-        grade: (8 + Math.random() * 2).toFixed(1), // Random grade between 8.0 and 10.0
-        color: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6'][idx % 4]
-    }));
+    // Calculate grades: use final if available, otherwise average of existing partials
+    const grades = myEnrollments.map((e) => {
+        const cls = classes.find(c => c.id === e.classId);
+        if (!cls) return null;
+
+        let gradeValue = null;
+        if (e.final !== null) {
+            gradeValue = parseFloat(e.final);
+        } else {
+            const partials = [e.p1, e.p2, e.p3].filter(p => p !== null && p !== undefined && p !== '');
+            if (partials.length > 0) {
+                gradeValue = partials.reduce((a, b) => a + parseFloat(b), 0) / partials.length;
+            }
+        }
+
+        return {
+            subject: cls.name,
+            grade: gradeValue !== null ? gradeValue.toFixed(1) : '-',
+            color: gradeValue !== null ? (gradeValue >= 6 ? '#10b981' : '#ef4444') : '#3b82f6'
+        };
+    }).filter(Boolean);
 
     const nextClass = myClasses.length > 0 ? myClasses[0] : null;
 
@@ -32,11 +47,11 @@ const StudentDashboard = () => {
             </header>
 
             <div className="card-grid">
-                <div className="glass-panel" style={{ padding: '2rem', gridColumn: 'span 2' }}>
+                <div className="glass-panel span-2" style={{ padding: '2rem' }}>
                     <h3 style={{ marginBottom: '1rem' }}>Promedio General</h3>
                     <div style={{ display: 'flex', alignItems: 'end', gap: '1rem' }}>
                         <span style={{ fontSize: '4rem', fontWeight: '800', lineHeight: 1, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            {grades.length > 0 ? (grades.reduce((acc, curr) => acc + parseFloat(curr.grade), 0) / grades.length).toFixed(1) : 'N/A'}
+                            {grades.filter(g => g.grade !== '-').length > 0 ? (grades.filter(g => g.grade !== '-').reduce((acc, curr) => acc + parseFloat(curr.grade), 0) / grades.filter(g => g.grade !== '-').length).toFixed(1) : 'N/A'}
                         </span>
                         <span style={{ color: '#10b981', paddingBottom: '0.5rem', fontWeight: '600' }}>+0.2 vs mes anterior</span>
                     </div>
@@ -82,7 +97,42 @@ const StudentDashboard = () => {
                     <p style={{ color: 'var(--text-muted)' }}>No tienes calificaciones registradas.</p>
                 )}
             </div>
-        </div>
+
+
+            <div className="dashboard-grid">
+                <div className="glass-panel" style={{ padding: '2rem' }}>
+                    <h2 style={{ marginBottom: '1.5rem' }}>Avisos Escolares</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {announcements && announcements.length > 0 ? (
+                            announcements.map((announcement) => (
+                                <div key={announcement.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{announcement.title}</h3>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                            {new Date(announcement.date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{announcement.content}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.5rem' }}>
+                                        Por: {announcement.author_name || 'Dirección'}
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <p style={{ color: 'var(--text-muted)' }}>No hay avisos recientes.</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="glass-panel" style={{ padding: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <Calendar size={24} color="var(--primary)" />
+                        <h3>Próximos Eventos</h3>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)' }}>No hay eventos programados.</p>
+                </div>
+            </div>
+        </div >
     );
 };
 

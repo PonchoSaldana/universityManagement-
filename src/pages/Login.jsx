@@ -25,7 +25,12 @@ const Login = () => {
             const redirectPath = user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/docente' : '/alumno';
             navigate(redirectPath);
         } catch (err) {
-            setError('Credenciales inválidas');
+            console.error('Login error:', err);
+            if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+                setError('Error de conexión: El servidor no responde. Intenta iniciar el backend.');
+            } else {
+                setError(err.message || 'Credenciales inválidas');
+            }
         } finally {
             setIsLoading(false);
         }

@@ -13,16 +13,17 @@ export const DataProvider = ({ children }) => {
         enrollments: []
     });
 
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api';
 
     const fetchData = async () => {
         try {
-            const [studentsRes, teachersRes, classesRes, enrollmentsRes, announcementsRes] = await Promise.all([
+            const [studentsRes, teachersRes, classesRes, enrollmentsRes, announcementsRes, materialsRes] = await Promise.all([
                 fetch(`${API_URL}/students`),
                 fetch(`${API_URL}/teachers`),
                 fetch(`${API_URL}/classes`),
                 fetch(`${API_URL}/classes/enrollments`),
-                fetch(`${API_URL}/announcements`)
+                fetch(`${API_URL}/announcements`),
+                fetch(`${API_URL}/materials`)
             ]);
 
             if (studentsRes.ok && teachersRes.ok && classesRes.ok && enrollmentsRes.ok && announcementsRes.ok) {
@@ -31,14 +32,24 @@ export const DataProvider = ({ children }) => {
                 const classesData = await classesRes.json();
                 const enrollmentsData = await enrollmentsRes.json();
                 const announcementsData = await announcementsRes.json();
+                const materialsData = await materialsRes.json();
 
                 setData(prev => ({
                     ...prev,
                     students: Array.isArray(studentsData) ? studentsData : [],
                     teachers: Array.isArray(teachersData) ? teachersData : [],
                     classes: Array.isArray(classesData) ? classesData : [],
-                    enrollments: Array.isArray(enrollmentsData) ? enrollmentsData : [],
-                    announcements: Array.isArray(announcementsData) ? announcementsData : []
+                    enrollments: Array.isArray(enrollmentsData) ? enrollmentsData.map(e => ({
+                        id: e.id,
+                        studentId: e.student_id,
+                        classId: e.class_id,
+                        p1: e.p1,
+                        p2: e.p2,
+                        p3: e.p3,
+                        final: e.final
+                    })) : [],
+                    announcements: Array.isArray(announcementsData) ? announcementsData : [],
+                    materials: Array.isArray(materialsData) ? materialsData : []
                 }));
             }
         } catch (error) {
@@ -107,9 +118,25 @@ export const DataProvider = ({ children }) => {
         }
     };
 
-    const addMaterial = (material) => {
-        const newMaterial = { ...material, id: Date.now(), date: new Date().toISOString() };
-        setData(prev => ({ ...prev, materials: [newMaterial, ...prev.materials] }));
+    const addMaterial = async (formData) => {
+        try {
+            const response = await fetch(`${API_URL}/materials`, {
+                method: 'POST',
+                body: formData // No headers needed, browser sets multipart/form-data automatically
+            });
+
+            if (response.ok) {
+                const newMaterial = await response.json();
+                setData(prev => ({ ...prev, materials: [newMaterial, ...prev.materials] }));
+                return true;
+            } else {
+                console.error('Failed to upload material');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error adding material:', error);
+            return false;
+        }
     };
 
     const enrollStudent = async (studentId, classId) => {
@@ -122,13 +149,14 @@ export const DataProvider = ({ children }) => {
 
             if (response.ok) {
                 const newEnrollment = await response.json();
-                // Map backend response to frontend structure if needed, or just use as is
-                // Backend returns { id, student_id, class_id }
-                // Frontend expects { id, studentId, classId } based on usage in TeacherStudents
                 const formattedEnrollment = {
                     id: newEnrollment.id,
                     studentId: newEnrollment.student_id,
-                    classId: newEnrollment.class_id
+                    classId: newEnrollment.class_id,
+                    p1: null,
+                    p2: null,
+                    p3: null,
+                    final: null
                 };
 
                 setData(prev => ({
@@ -143,6 +171,30 @@ export const DataProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error enrolling student:', error);
+            return false;
+        }
+    };
+
+    const updateGrade = async (enrollmentId, grades) => {
+        try {
+            const response = await fetch(`${API_URL}/classes/enrollments/${enrollmentId}/grade`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(grades)
+            });
+
+            if (response.ok) {
+                setData(prev => ({
+                    ...prev,
+                    enrollments: prev.enrollments.map(e =>
+                        e.id === enrollmentId ? { ...e, ...grades } : e
+                    )
+                }));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error updating grade:', error);
             return false;
         }
     };
@@ -190,7 +242,8 @@ export const DataProvider = ({ children }) => {
             addClass,
             addAnnouncement,
             addMaterial,
-            enrollStudent
+            enrollStudent,
+            updateGrade
         }}>
             {children}
         </DataContext.Provider>

@@ -84,7 +84,9 @@ const Layout = () => {
                     <div className="flex items-center gap-3">
                         <div className="flex-col items-end user-info">
                             <p className="text-sm font-bold">{user.name}</p>
-                            <p className="text-sm text-muted" style={{ textTransform: 'capitalize', fontSize: '0.75rem' }}>{user.role}</p>
+                            <p className="text-sm text-muted" style={{ textTransform: 'capitalize', fontSize: '0.75rem' }}>
+                                {user.role === 'student' ? 'Alumno' : (user.role === 'teacher' ? 'Docente' : 'Administrador')}
+                            </p>
                         </div>
                         <div className="rounded-full flex items-center justify-center font-bold text-white"
                             style={{

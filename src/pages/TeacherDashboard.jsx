@@ -5,7 +5,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
 const TeacherDashboard = () => {
-    const { classes, teachers, enrollments } = useData();
+    const { classes, teachers, enrollments, announcements, addAnnouncement } = useData();
     const { user } = useAuth();
 
     // Filter classes for the current logged-in teacher
@@ -114,7 +114,76 @@ const TeacherDashboard = () => {
                     </div>
                 )}
             </div>
-        </div>
+
+
+            <div className="dashboard-grid">
+                <div className="glass-panel" style={{ padding: '2rem' }}>
+                    <h2 style={{ marginBottom: '1.5rem' }}>Avisos Generales</h2>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const form = e.target;
+                        const title = form.title.value;
+                        const content = form.content.value;
+
+                        addAnnouncement({
+                            title,
+                            content,
+                            author_id: user.id
+                        });
+
+                        form.reset();
+                    }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+                        <input
+                            name="title"
+                            placeholder="Título del aviso"
+                            className="glass-panel"
+                            required
+                            style={{ padding: '0.75rem', background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none' }}
+                        />
+                        <textarea
+                            name="content"
+                            placeholder="Escribe el contenido del aviso..."
+                            className="glass-panel"
+                            required
+                            rows="3"
+                            style={{ padding: '0.75rem', background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', resize: 'none' }}
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>
+                            Publicar Aviso
+                        </button>
+                    </form>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {announcements && announcements.length > 0 ? (
+                            announcements.map((announcement) => (
+                                <div key={announcement.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{announcement.title}</h3>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                            {new Date(announcement.date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{announcement.content}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.5rem' }}>
+                                        Por: {announcement.author_name || 'Desconocido'}
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <p style={{ color: 'var(--text-muted)' }}>No hay avisos publicados.</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="glass-panel" style={{ padding: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <Calendar size={24} color="var(--primary)" />
+                        <h3>Próximos Eventos</h3>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)' }}>No hay eventos programados.</p>
+                </div>
+            </div>
+        </div >
     );
 };
 

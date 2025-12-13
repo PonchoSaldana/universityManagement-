@@ -3,7 +3,7 @@ import { Save, User, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const AdminSettings = () => {
-    const { user } = useAuth();
+    const { user, updateProfile } = useAuth();
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -12,10 +12,26 @@ const AdminSettings = () => {
         confirmPassword: ''
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Implement update logic here
-        alert('Configuración guardada (Simulación)');
+
+        if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+            alert('Las nuevas contraseñas no coinciden');
+            return;
+        }
+
+        try {
+            await updateProfile({
+                name: formData.name,
+                email: formData.email,
+                password: formData.currentPassword, // Backend expects 'password' for current compliance
+                newPassword: formData.newPassword
+            });
+            alert('Configuración guardada exitosamente');
+            setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+        } catch (error) {
+            alert(error.message);
+        }
     };
 
     return (

@@ -24,16 +24,22 @@ const TeacherClasses = () => {
         setSelectedClass(cls);
     };
 
-    const handleUpload = (e) => {
+    const handleUpload = async (e) => {
         e.preventDefault();
-        addMaterial({
-            classId: selectedClass.id,
-            title: formData.title,
-            type: formData.type,
-            size: formData.size || '1.0 MB'
-        });
-        setFormData({ title: '', type: 'pdf' });
-        setIsModalOpen(false);
+
+        if (!formData.file) return;
+
+        const data = new FormData();
+        data.append('class_id', selectedClass.id);
+        data.append('title', formData.title);
+        data.append('file', formData.file);
+
+        const success = await addMaterial(data);
+
+        if (success) {
+            setFormData({ title: '', type: 'pdf' });
+            setIsModalOpen(false);
+        }
     };
 
     if (selectedClass) {
@@ -85,9 +91,15 @@ const TeacherClasses = () => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <button className="btn btn-secondary" style={{ padding: '0.5rem' }}>
+                                        <a
+                                            href={`http://localhost:3000${material.url}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-secondary"
+                                            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >
                                             <Download size={20} />
-                                        </button>
+                                        </a>
                                     </div>
                                 ))
                             ) : (

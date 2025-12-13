@@ -6,33 +6,37 @@ import { useData } from '../context/DataContext';
 
 const StudentGrades = () => {
     const { user } = useAuth();
-    const { classes, enrollments } = useData();
+    const { classes, enrollments, students } = useData();
 
     // Obtener clases inscritas del alumno
-    const studentId = user?.email === 'carlos@school.edu' ? 2 : 1;
+    const studentId = students.find(s => s.user_id === user?.id)?.id;
     const myEnrollments = enrollments ? enrollments.filter(e => e.studentId === studentId) : [];
-    const myClasses = myEnrollments.map(e => classes.find(c => c.id === e.classId)).filter(Boolean);
 
     // Datos simulados de calificaciones
-    const grades = myClasses.map(cls => {
-        // Generar calificaciones consistentes basadas en ID
-        const baseGrade = 7 + (cls.id % 3);
-        const p1 = Math.min(10, baseGrade + 0.5);
-        const p2 = Math.min(10, baseGrade - 0.2);
-        const p3 = Math.min(10, baseGrade + 0.8);
-        const final = ((p1 + p2 + p3) / 3).toFixed(1);
+    // Obtener datos reales de calificaciones desde enrollments
+    const grades = myEnrollments.map(e => {
+        const cls = classes.find(c => c.id === e.classId);
+        if (!cls) return null;
+
+        const p1 = e.p1 !== null ? parseFloat(e.p1) : null;
+        const p2 = e.p2 !== null ? parseFloat(e.p2) : null;
+        const p3 = e.p3 !== null ? parseFloat(e.p3) : null;
+        const final = e.final !== null ? parseFloat(e.final) : null;
 
         return {
             subject: cls.name,
-            p1: p1.toFixed(1),
-            p2: p2.toFixed(1),
-            p3: p3.toFixed(1),
-            final: final,
-            status: final >= 6 ? 'Aprobado' : 'Reprobado'
+            p1: p1 !== null ? p1.toFixed(1) : '-',
+            p2: p2 !== null ? p2.toFixed(1) : '-',
+            p3: p3 !== null ? p3.toFixed(1) : '-',
+            final: final !== null ? final.toFixed(1) : '-',
+            status: final !== null ? (final >= 6 ? 'Aprobado' : 'Reprobado') : 'Cursando'
         };
-    });
+    }).filter(Boolean);
 
-    const average = (grades.reduce((acc, curr) => acc + curr.final, 0) / grades.length).toFixed(1);
+    const validGrades = grades.filter(g => g.final !== '-');
+    const average = validGrades.length > 0
+        ? (validGrades.reduce((acc, curr) => acc + parseFloat(curr.final), 0) / validGrades.length).toFixed(1)
+        : 'N/A';
 
     return (
         <div className="animate-fade-in">
@@ -58,7 +62,9 @@ const StudentGrades = () => {
                     </div>
                     <div>
                         <p style={{ color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Materias Aprobadas</p>
-                        <p style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1 }}>{grades.length}/{grades.length}</p>
+                        <p style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1 }}>
+                            {grades.filter(g => g.status === 'Aprobado').length}/{grades.length}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -88,13 +94,13 @@ const StudentGrades = () => {
                                 <td style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>{item.p1}</td>
                                 <td style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>{item.p2}</td>
                                 <td style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>{item.p3}</td>
-                                <td style={{ padding: '1.5rem', textAlign: 'center', fontWeight: 'bold', color: item.final >= 6 ? '#10b981' : '#ef4444' }}>{item.final}</td>
+                                <td style={{ padding: '1.5rem', textAlign: 'center', fontWeight: 'bold', color: item.final >= 6 ? '#10b981' : (item.final === '-' ? 'var(--text-muted)' : '#ef4444') }}>{item.final}</td>
                                 <td style={{ padding: '1.5rem', textAlign: 'center' }}>
                                     <span style={{
                                         padding: '0.25rem 0.75rem',
                                         borderRadius: '20px',
-                                        background: item.final >= 6 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                                        color: item.final >= 6 ? '#10b981' : '#ef4444',
+                                        background: item.status === 'Aprobado' ? 'rgba(16, 185, 129, 0.2)' : (item.status === 'Cursando' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)'),
+                                        color: item.status === 'Aprobado' ? '#10b981' : (item.status === 'Cursando' ? '#3b82f6' : '#ef4444'),
                                         fontSize: '0.85rem'
                                     }}>
                                         {item.status}

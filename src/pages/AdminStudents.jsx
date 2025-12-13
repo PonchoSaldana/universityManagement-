@@ -56,7 +56,7 @@ const AdminStudents = () => {
                 </div>
             </div>
 
-            <div className="glass-panel" style={{ overflow: 'hidden' }}>
+            <div className="glass-panel" style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid var(--glass-border)', textAlign: 'left' }}>

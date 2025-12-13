@@ -53,4 +53,16 @@ router.post('/enrollments', (req, res) => {
     });
 });
 
+// Update enrollment grade
+router.put('/enrollments/:id/grade', (req, res) => {
+    const enrollmentId = req.params.id;
+    const { p1, p2, p3, final } = req.body;
+
+    const query = 'UPDATE enrollments SET p1 = ?, p2 = ?, p3 = ?, final = ? WHERE id = ?';
+    db.query(query, [p1, p2, p3, final, enrollmentId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Grade updated successfully' });
+    });
+});
+
 module.exports = router;

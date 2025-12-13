@@ -25,7 +25,6 @@ const AdminDashboard = () => {
         { label: 'Total Alumnos', value: students.length.toString(), icon: GraduationCap, color: '#ec4899' },
         { label: 'Docentes Activos', value: teachers.length.toString(), icon: Users, color: '#6366f1' },
         { label: 'Materias', value: classes.length.toString(), icon: BookOpen, color: '#8b5cf6' },
-        { label: 'Asistencia Hoy', value: '0%', icon: TrendingUp, color: '#10b981' },
     ];
 
     return (
@@ -62,7 +61,7 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+            <div className="dashboard-grid">
                 <div className="glass-panel" style={{ padding: '2rem' }}>
                     <h3 style={{ marginBottom: '1.5rem' }}>Alumnos Recientes</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
