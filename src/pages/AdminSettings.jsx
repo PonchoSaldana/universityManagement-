@@ -40,38 +40,60 @@ const AdminSettings = () => {
 
     return (
         <div className="animate-fade-in max-w-4xl mx-auto pb-12">
+            <header className="mb-8">
+                <h1>Configuración de Cuenta</h1>
+                <p className="text-muted">Administra tu perfil, seguridad y preferencias.</p>
+            </header>
 
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Configuración de Cuenta</h1>
-                <p className="text-gray-500 text-sm">Administra tu perfil y credenciales de acceso.</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="glass-panel overflow-hidden">
                 {/* Profile Header */}
-                <div className="bg-gradient-to-r from-indigo-50 to-white border-b border-gray-100 p-8">
+                <div style={{
+                    background: 'linear-gradient(to right, rgba(79, 70, 229, 0.1), transparent)',
+                    borderBottom: '1px solid var(--border-color)',
+                    padding: '2rem'
+                }}>
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-indigo-200 ring-4 ring-white">
+                            <div className="rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg ring-4 ring-opacity-20 ring-white"
+                                style={{
+                                    width: '96px',
+                                    height: '96px',
+                                    background: 'var(--primary)',
+                                    borderColor: 'var(--bg-card)'
+                                }}>
                                 {user?.name?.charAt(0) || 'A'}
                             </div>
-                            <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
+                            <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-white"
+                                style={{
+                                    background: 'var(--success)',
+                                    borderColor: 'var(--bg-card)'
+                                }}></div>
                         </div>
                         <div className="text-center md:text-left space-y-1">
-                            <h2 className="text-xl font-bold text-gray-900">{user?.name}</h2>
-                            <p className="text-sm text-gray-500 font-medium">Administrador • {user?.email}</p>
+                            <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{user?.name}</h2>
+                            <p className="text-muted font-medium">Administrador • {user?.email}</p>
                             <div className="pt-2">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                                    style={{
+                                        background: 'rgba(79, 70, 229, 0.1)',
+                                        color: 'var(--primary)'
+                                    }}>
+                                    <Shield size={12} className="mr-1" />
                                     Cuenta Verificada
                                 </span>
                             </div>
                         </div>
-                        <div className="md:ml-auto flex gap-3">
-                            <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                        <div className="md:ml-auto flex gap-3 w-full md:w-auto mt-4 md:mt-0">
+                            <button
+                                type="button"
+                                onClick={() => window.history.back()}
+                                className="btn btn-secondary flex-1 md:flex-none justify-center"
+                            >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 hover:shadow-lg transition-all flex items-center gap-2"
+                                className="btn btn-primary flex-1 md:flex-none justify-center"
                             >
                                 <Save size={16} />
                                 Guardar
@@ -85,36 +107,36 @@ const AdminSettings = () => {
                         {/* Personal Info */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                             <div className="md:col-span-4">
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Información Básica</h3>
-                                <p className="text-gray-500 text-xs leading-relaxed">
+                                <h3 className="uppercase tracking-wider mb-2 text-sm">Información Básica</h3>
+                                <p className="text-muted text-xs leading-relaxed">
                                     Datos visibles en tu perfil de administrador.
                                 </p>
                             </div>
                             <div className="md:col-span-8 space-y-5">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-semibold text-gray-700">Nombre Completo</label>
+                                        <label className="text-xs font-bold text-muted uppercase">Nombre Completo</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <User size={16} className="text-gray-400" />
+                                                <User size={16} className="text-muted" />
                                             </div>
                                             <input
                                                 type="text"
-                                                className="block w-full pl-9 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white transition-colors"
+                                                className="form-input pl-10"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-semibold text-gray-700">Email Corporativo</label>
+                                        <label className="text-xs font-bold text-muted uppercase">Email Corporativo</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Mail size={16} className="text-gray-400" />
+                                                <Mail size={16} className="text-muted" />
                                             </div>
                                             <input
                                                 type="email"
-                                                className="block w-full pl-9 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white transition-colors"
+                                                className="form-input pl-10"
                                                 value={formData.email}
                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             />
@@ -124,29 +146,27 @@ const AdminSettings = () => {
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-50"></div>
+                        <div className="border-t border-border"></div>
 
                         {/* Security */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                             <div className="md:col-span-4">
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Seguridad</h3>
-                                <p className="text-gray-500 text-xs leading-relaxed">
+                                <h3 className="uppercase tracking-wider mb-2 text-sm">Seguridad</h3>
+                                <p className="text-muted text-xs leading-relaxed">
                                     Actualiza tu contraseña periódicamente para proteger tu cuenta.
                                 </p>
                             </div>
                             <div className="md:col-span-8">
-                                <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100 space-y-5">
+                                <div className="p-6 rounded-xl border border-border space-y-5" style={{ background: 'var(--bg-hover)' }}>
                                     <div className="space-y-1.5">
-                                        <div className="flex justify-between">
-                                            <label className="text-xs font-semibold text-gray-700">Contraseña Actual</label>
-                                        </div>
+                                        <label className="text-xs font-bold text-muted uppercase">Contraseña Actual</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Lock size={16} className="text-gray-400" />
+                                                <Lock size={16} className="text-muted" />
                                             </div>
                                             <input
                                                 type="password"
-                                                className="block w-full pl-9 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                                className="form-input pl-10"
                                                 placeholder="••••••••••••"
                                                 value={formData.currentPassword}
                                                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
@@ -156,20 +176,20 @@ const AdminSettings = () => {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-semibold text-gray-700">Nueva Contraseña</label>
+                                            <label className="text-xs font-bold text-muted uppercase">Nueva Contraseña</label>
                                             <input
                                                 type="password"
-                                                className="block w-full px-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                                className="form-input"
                                                 placeholder="Mínimo 8 caracteres"
                                                 value={formData.newPassword}
                                                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-semibold text-gray-700">Confirmar</label>
+                                            <label className="text-xs font-bold text-muted uppercase">Confirmar</label>
                                             <input
                                                 type="password"
-                                                className="block w-full px-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                                className="form-input"
                                                 placeholder="Repite la contraseña"
                                                 value={formData.confirmPassword}
                                                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -184,7 +204,7 @@ const AdminSettings = () => {
             </div>
 
             <div className="mt-8 text-center">
-                <p className="text-gray-400 text-xs">Último acceso: {new Date().toLocaleDateString()}</p>
+                <p className="text-muted text-xs">Último acceso: {new Date().toLocaleDateString()}</p>
             </div>
         </div>
     );
