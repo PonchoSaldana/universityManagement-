@@ -55,24 +55,25 @@ const TeacherDashboard = () => {
                             initial={{ x: -20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: idx * 0.1 }}
-                            style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                            style={{ padding: '1.5rem' }}
                         >
-                            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flex: 1 }}>
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                                 <div style={{
-                                    padding: '1rem',
+                                    padding: '0.75rem',
                                     background: 'rgba(99, 102, 241, 0.1)',
                                     borderRadius: '12px',
                                     color: 'var(--primary)',
                                     fontWeight: 'bold',
-                                    minWidth: '120px',
-                                    textAlign: 'center'
+                                    minWidth: '100px',
+                                    textAlign: 'center',
+                                    flexShrink: 0
                                 }}>
                                     {cls.time}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                        <h3 style={{ margin: 0 }}>{cls.name}</h3>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div style={{ flex: 1, minWidth: '180px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{cls.name}</h3>
+                                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                                             {Array.isArray(cls.days) ? cls.days.map(day => (
                                                 <span key={day} style={{
                                                     fontSize: '0.75rem',
@@ -96,12 +97,12 @@ const TeacherDashboard = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <Users size={16} /> {cls.studentCount} alumnos
+                                            <Users size={14} /> {cls.studentCount} alumnos
                                         </span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <BookOpen size={16} /> {cls.room}
+                                            <BookOpen size={14} /> {cls.room}
                                         </span>
                                     </div>
                                 </div>
@@ -136,17 +137,16 @@ const TeacherDashboard = () => {
                         <input
                             name="title"
                             placeholder="Título del aviso"
-                            className="glass-panel"
+                            className="form-input"
                             required
-                            style={{ padding: '0.75rem', background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none' }}
                         />
                         <textarea
                             name="content"
                             placeholder="Escribe el contenido del aviso..."
-                            className="glass-panel"
+                            className="form-input"
                             required
                             rows="3"
-                            style={{ padding: '0.75rem', background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', resize: 'none' }}
+                            style={{ resize: 'none' }}
                         />
                         <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>
                             Publicar Aviso
@@ -156,7 +156,7 @@ const TeacherDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {announcements && announcements.length > 0 ? (
                             announcements.map((announcement) => (
-                                <div key={announcement.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                                <div key={announcement.id} style={{ padding: '1rem', background: 'var(--bg-hover)', borderRadius: '8px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                         <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{announcement.title}</h3>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
