@@ -484,6 +484,11 @@ h3 {
   white-space: nowrap;
 }
 
+.overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
