@@ -113,7 +113,7 @@ const AdminStudents = () => {
             </div>
 
             <div className="card overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse" style={{ minWidth: '1000px' }}>
                     <thead>
                         <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
                             <th className="p-4 text-muted font-medium">Matrícula</th>

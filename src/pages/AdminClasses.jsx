@@ -54,40 +54,42 @@ const AdminClasses = () => {
             </div>
 
             <div className="glass-panel" style={{ overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
-                            <th className="p-4 text-muted">Materia</th>
-                            <th className="p-4 text-muted">Docente</th>
-                            <th className="p-4 text-muted">Horario</th>
-                            <th className="p-4 text-muted">Salón</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredClasses.map((cls) => (
-                            <tr key={cls.id} className="border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
-                                <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <BookOpen size={16} color="white" />
-                                    </div>
-                                    {cls.name}
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <User size={16} color="var(--text-muted)" />
-                                        {cls.teacher_name || 'Sin asignar'}
-                                    </div>
-                                </td>
-                                <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
-                                    {cls.days} {cls.time}
-                                </td>
-                                <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
-                                    {cls.room}
-                                </td>
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+                        <thead>
+                            <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
+                                <th className="p-4 text-muted">Materia</th>
+                                <th className="p-4 text-muted">Docente</th>
+                                <th className="p-4 text-muted">Horario</th>
+                                <th className="p-4 text-muted">Salón</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredClasses.map((cls) => (
+                                <tr key={cls.id} className="border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
+                                    <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <BookOpen size={16} color="white" />
+                                        </div>
+                                        {cls.name}
+                                    </td>
+                                    <td style={{ padding: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <User size={16} color="var(--text-muted)" />
+                                            {cls.teacher_name || 'Sin asignar'}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                                        {cls.days} {cls.time}
+                                    </td>
+                                    <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                                        {cls.room}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Materia">
