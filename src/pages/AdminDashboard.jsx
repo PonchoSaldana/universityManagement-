@@ -81,13 +81,27 @@ const AdminDashboard = () => {
                     <h3 className="mb-6">Accesos Rápidos</h3>
                     <div className="flex-col gap-3">
                         <button
-                            className="btn btn-secondary w-full justify-center"
+                            className="btn"
+                            style={{
+                                background: 'var(--bg-hover)',
+                                color: 'var(--text-main)',
+                                border: '1px solid var(--border-color)',
+                                justifyContent: 'center',
+                                width: '100%'
+                            }}
                             onClick={() => navigate('/admin/alumnos')}
                         >
                             + Registrar Alumno
                         </button>
                         <button
-                            className="btn btn-secondary w-full justify-center"
+                            className="btn"
+                            style={{
+                                background: 'var(--bg-hover)',
+                                color: 'var(--text-main)',
+                                border: '1px solid var(--border-color)',
+                                justifyContent: 'center',
+                                width: '100%'
+                            }}
                             onClick={() => setIsAnnouncementModalOpen(true)}
                         >
                             + Publicar Aviso
