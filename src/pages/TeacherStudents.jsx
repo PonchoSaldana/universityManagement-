@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Users, Search, Mail, MoreVertical } from 'lucide-react';
+import { Users, Search, Mail, MoreVertical, Trash2, UserMinus } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import Modal from '../components/Modal';
+import ConfirmModal from '../components/ConfirmModal';
+import { useToast } from '../context/ToastContext';
 
 const TeacherStudents = () => {
-    const { students, classes, enrollments, enrollStudent, teachers } = useData();
+    const { students, classes, enrollments, enrollStudent, unenrollStudent, teachers } = useData();
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -40,7 +43,35 @@ const TeacherStudents = () => {
     const [studentSearch, setStudentSearch] = useState('');
     const [gradingStudent, setGradingStudent] = useState(null);
     const [grades, setGrades] = useState({ p1: '', p2: '', p3: '' });
+
+    // Confirm Modal State
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+    const { addToast } = useToast();
+
     const { updateGrade } = useData();
+
+    const handleUnenroll = async (studentId) => {
+        const targetClassId = myClasses[0]?.id;
+        const enrollment = enrollments.find(e => e.studentId === studentId && e.classId === targetClassId);
+
+        if (enrollment) {
+            setConfirmModal({
+                isOpen: true,
+                title: 'Eliminar Alumno',
+                message: `¿Estás seguro de que deseas sacar al alumno de la clase ${myClasses[0]?.name}?`,
+                onConfirm: async () => {
+                    const success = await unenrollStudent(enrollment.id);
+                    if (success) {
+                        addToast('Alumno eliminado de la clase correctamente', 'success');
+                    } else {
+                        addToast('Error al eliminar alumno', 'error');
+                    }
+                }
+            });
+        } else {
+            addToast('No se encontró la inscripción para esta clase.', 'error');
+        }
+    };
 
     const handleOpenGradeModal = (studentId) => {
         // Find enrollment for this student and current class
@@ -87,6 +118,9 @@ const TeacherStudents = () => {
         if (success) {
             setIsGradeModalOpen(false);
             setGradingStudent(null);
+            addToast('Calificaciones actualizadas correctamente', 'success');
+        } else {
+            addToast('Error al actualizar calificaciones', 'error');
         }
     };
 
@@ -94,10 +128,15 @@ const TeacherStudents = () => {
         e.preventDefault();
         const targetClassId = myClasses[0]?.id;
         if (targetClassId && selectedStudent) {
-            await enrollStudent(parseInt(selectedStudent), parseInt(targetClassId));
-            setIsEnrollModalOpen(false);
-            setSelectedStudent('');
-            setStudentSearch('');
+            const success = await enrollStudent(parseInt(selectedStudent), parseInt(targetClassId));
+            if (success) {
+                setIsEnrollModalOpen(false);
+                setSelectedStudent('');
+                setStudentSearch('');
+                addToast('Alumno agregado correctamente', 'success');
+            } else {
+                addToast('Error al agregar alumno', 'error');
+            }
         }
     };
 
@@ -126,7 +165,7 @@ const TeacherStudents = () => {
                         if (myClasses.length > 0) {
                             setIsEnrollModalOpen(true);
                         } else {
-                            alert("No tienes clases asignadas para agregar alumnos.");
+                            addToast("No tienes clases asignadas para agregar alumnos.", 'error');
                         }
                     }}
                 >
@@ -173,9 +212,6 @@ const TeacherStudents = () => {
                                         <p className="text-sm text-muted">{student.grade}</p>
                                     </div>
                                 </div>
-                                <button className="btn-ghost rounded-full p-2">
-                                    <MoreVertical size={20} />
-                                </button>
                             </div>
 
                             <div className="flex gap-2 flex-wrap">
@@ -193,8 +229,8 @@ const TeacherStudents = () => {
                                 >
                                     Calificar
                                 </button>
-                                <button className="btn btn-secondary w-full justify-center text-sm">
-                                    <Mail size={16} />
+                                <button className="btn btn-secondary w-full justify-center text-sm text-error" onClick={() => handleUnenroll(student.id)}>
+                                    Eliminar
                                 </button>
                             </div>
                         </div>
@@ -203,173 +239,133 @@ const TeacherStudents = () => {
             </div>
 
             {/* Modal for enrolling students */}
-            {isEnrollModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    backdropFilter: 'blur(5px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }} onClick={() => setIsEnrollModalOpen(false)}>
-                    <div
-                        className="glass-panel"
-                        style={{ width: '100%', maxWidth: '500px', padding: '2rem', background: '#1e293b' }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 style={{ marginBottom: '1.5rem' }}>Agregar Alumno a Clase</h2>
-                        <p style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>
-                            Agregando a: <span style={{ color: 'var(--accent)' }}>{myClasses[0]?.name}</span>
-                        </p>
-                        <form onSubmit={handleEnroll} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Seleccionar Alumno</label>
-                                {!selectedStudent ? (
-                                    <>
-                                        <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem', marginBottom: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
-                                            <Search size={18} color="var(--text-muted)" />
-                                            <input
-                                                type="text"
-                                                placeholder="Buscar por nombre..."
-                                                style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none' }}
-                                                value={studentSearch}
-                                                onChange={(e) => setStudentSearch(e.target.value)}
-                                            />
+            <Modal isOpen={isEnrollModalOpen} onClose={() => setIsEnrollModalOpen(false)} title="Agregar Alumno a Clase">
+                <p className="mb-4 text-muted">
+                    Agregando a: <span className="text-primary font-bold">{myClasses[0]?.name}</span>
+                </p>
+                <form onSubmit={handleEnroll} className="flex flex-col gap-4">
+                    <div>
+                        <label className="block mb-2 text-sm font-medium text-muted">Seleccionar Alumno</label>
+                        {!selectedStudent ? (
+                            <>
+                                <div className="flex items-center gap-2 p-3 mb-2 rounded-lg bg-hover">
+                                    <Search size={18} className="text-muted" />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar por nombre..."
+                                        className="w-full bg-transparent border-none outline-none text-main"
+                                        value={studentSearch}
+                                        onChange={(e) => setStudentSearch(e.target.value)}
+                                    />
+                                </div>
+                                <div className="max-h-48 overflow-y-auto border border-border rounded-lg">
+                                    {filteredAvailableStudents.length > 0 ? (
+                                        filteredAvailableStudents.map(student => (
+                                            <div
+                                                key={student.id}
+                                                onClick={() => setSelectedStudent(student.id)}
+                                                className="p-3 cursor-pointer flex justify-between items-center hover:bg-hover border-b border-border last:border-0"
+                                            >
+                                                <span>{student.name}</span>
+                                                <span className="text-xs text-muted">{student.grade}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-4 text-center text-muted">
+                                            No se encontraron alumnos
                                         </div>
-                                        <div className="glass-panel" style={{ maxHeight: '200px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)' }}>
-                                            {filteredAvailableStudents.length > 0 ? (
-                                                filteredAvailableStudents.map(student => (
-                                                    <div
-                                                        key={student.id}
-                                                        onClick={() => setSelectedStudent(student.id)}
-                                                        style={{
-                                                            padding: '0.75rem',
-                                                            cursor: 'pointer',
-                                                            borderBottom: '1px solid rgba(255,255,255,0.05)',
-                                                            display: 'flex',
-                                                            justifyContent: 'space-between',
-                                                            alignItems: 'center'
-                                                        }}
-                                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                                    >
-                                                        <span>{student.name}</span>
-                                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{student.grade}</span>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                                    No se encontraron alumnos
-                                                </div>
-                                            )}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="glass-panel" style={{ padding: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', borderColor: '#10b981' }}>
-                                        <span style={{ color: '#10b981', fontWeight: '500' }}>
-                                            {students.find(s => s.id === parseInt(selectedStudent))?.name}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedStudent('')}
-                                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.9rem' }}
-                                        >
-                                            Cambiar
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsEnrollModalOpen(false)}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                                    Agregar
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="p-3 rounded-lg flex justify-between items-center border border-success bg-success-light" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                                <span className="font-medium text-success">
+                                    {students.find(s => s.id === parseInt(selectedStudent))?.name}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedStudent('')}
+                                    className="text-error text-sm font-medium hover:underline"
+                                >
+                                    Cambiar
                                 </button>
                             </div>
-                        </form>
+                        )}
                     </div>
-                </div>
-            )}
+                    <div className="flex gap-4 mt-4">
+                        <button type="button" className="btn btn-secondary flex-1 justify-center" onClick={() => setIsEnrollModalOpen(false)}>
+                            Cancelar
+                        </button>
+                        <button type="submit" className="btn btn-primary flex-1 justify-center">
+                            Agregar
+                        </button>
+                    </div>
+                </form>
+            </Modal>
 
             {/* Scale user grade modal */}
-            {isGradeModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    backdropFilter: 'blur(5px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }} onClick={() => setIsGradeModalOpen(false)}>
-                    <div
-                        className="glass-panel"
-                        style={{ width: '100%', maxWidth: '400px', padding: '2rem', background: '#1e293b' }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 style={{ marginBottom: '1.5rem' }}>Calificar Alumno</h2>
-                        <p style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>
-                            Alumno: <span style={{ color: 'var(--accent)' }}>{gradingStudent?.name}</span>
-                        </p>
-                        <form onSubmit={handleGradeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 1</label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        max="10"
-                                        className="glass-panel"
-                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
-                                        value={grades.p1}
-                                        onChange={(e) => setGrades({ ...grades, p1: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 2</label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        max="10"
-                                        className="glass-panel"
-                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
-                                        value={grades.p2}
-                                        onChange={(e) => setGrades({ ...grades, p2: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Parcial 3</label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        max="10"
-                                        className="glass-panel"
-                                        style={{ width: '100%', padding: '0.5rem', color: 'white', background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}
-                                        value={grades.p3}
-                                        onChange={(e) => setGrades({ ...grades, p3: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsGradeModalOpen(false)}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                                    Guardar
-                                </button>
-                            </div>
-                        </form>
+            <Modal isOpen={isGradeModalOpen} onClose={() => setIsGradeModalOpen(false)} title="Calificar Alumno">
+                <p className="mb-4 text-muted">
+                    Alumno: <span className="font-bold text-primary">{gradingStudent?.name}</span>
+                </p>
+                <form onSubmit={handleGradeSubmit} className="flex flex-col gap-4">
+                    <div className="grid grid-cols-3 gap-4">
+                        <div>
+                            <label className="block mb-2 text-sm text-muted text-center">Parcial 1</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="form-input text-center"
+                                value={grades.p1}
+                                onChange={(e) => setGrades({ ...grades, p1: e.target.value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-2 text-sm text-muted text-center">Parcial 2</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="form-input text-center"
+                                value={grades.p2}
+                                onChange={(e) => setGrades({ ...grades, p2: e.target.value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-2 text-sm text-muted text-center">Parcial 3</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="form-input text-center"
+                                value={grades.p3}
+                                onChange={(e) => setGrades({ ...grades, p3: e.target.value })}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
+
+                    <div className="flex gap-4 mt-4">
+                        <button type="button" className="btn btn-secondary flex-1 justify-center" onClick={() => setIsGradeModalOpen(false)}>
+                            Cancelar
+                        </button>
+                        <button type="submit" className="btn btn-primary flex-1 justify-center">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div>
     );
 };

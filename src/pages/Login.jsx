@@ -27,7 +27,7 @@ const Login = () => {
         } catch (err) {
             console.error('Login error:', err);
             if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
-                setError('Error de conexión: El servidor no responde. Intenta iniciar el backend.');
+                setError('Error de conexión: Verifica que el backend esté corriendo.');
             } else {
                 setError(err.message || 'Credenciales inválidas');
             }
@@ -37,126 +37,182 @@ const Login = () => {
     };
 
     return (
-        <div className="app-container" style={{
-            justifyContent: 'center',
+        <div style={{
+            minHeight: '100vh',
+            width: '100%',
+            display: 'flex',
             alignItems: 'center',
-            background: 'var(--bg-dark)',
+            justifyContent: 'center',
+            backgroundImage: 'url("https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             position: 'relative',
             overflow: 'hidden'
         }}>
-            {/* Background Decoration */}
-
+            {/* Overlay */}
+            <div style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(4px)'
+            }} />
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="card"
+                className="glass-panel"
                 style={{
+                    position: 'relative',
                     width: '100%',
                     maxWidth: '400px',
-                    padding: '2rem',
-                    position: 'relative',
-                    zIndex: 1,
+                    padding: '2.5rem',
+                    margin: '1rem',
+                    background: '#ffffff', // White background
                     border: '1px solid var(--border-color)',
-                    background: 'var(--bg-card)',
-                    boxShadow: 'var(--shadow)'
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                 }}
             >
-                <div className="flex-col items-center gap-6 mb-8 text-center">
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', textAlign: 'center' }}>
                     <motion.div
-                        initial={{ y: -20 }}
-                        animate={{ y: 0 }}
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="p-4 rounded-2xl"
                         style={{
                             background: 'var(--primary)',
-                            borderRadius: '12px'
+                            color: 'white',
+                            padding: '1rem',
+                            borderRadius: '16px',
+                            marginBottom: '1rem',
+                            boxShadow: '0 10px 15px -3px rgba(79, 70, 229, 0.4)'
                         }}
                     >
-                        <School size={40} color="white" />
+                        <School size={40} />
                     </motion.div>
-                    <div>
-                        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: '700' }}>Universidad Elite</h1>
-                        <p className="text-muted text-sm">Portal de Acceso</p>
-                    </div>
+                    <h1 style={{ color: 'var(--text-main)', fontSize: '2rem', marginBottom: '0.25rem' }}>Universidad Elite</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Plataforma Académica Digital</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex-col gap-5">
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {error && (
                         <motion.div
-                            initial={{ opacity: 0, x: -20 }}
+                            initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
-                            style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171' }}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: '8px',
+                                background: '#fef2f2',
+                                border: '1px solid #fee2e2',
+                                color: '#ef4444',
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}
                         >
                             <AlertCircle size={16} />
                             {error}
                         </motion.div>
                     )}
 
-                    <div className="flex-col gap-2">
-                        <label className="text-sm font-medium text-muted" style={{ marginLeft: '4px' }}>Usuario</label>
-                        <div className="flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200"
-                            style={{
-                                background: 'var(--bg-hover)',
-                                border: '1px solid var(--border-color)',
-                            }}>
-                            <User size={18} color="#475569" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                                <User size={20} />
+                            </div>
                             <input
                                 type="text"
-                                className="bg-transparent border-none w-full outline-none text-sm"
-                                style={{ color: '#000000' }}
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                 required
                                 autoFocus
+                                placeholder="Nombre de usuario"
+                                className="form-input"
+                                style={{
+                                    paddingLeft: '3rem',
+                                    background: 'var(--bg-hover)',
+                                    border: '1px solid var(--border-color)',
+                                    color: 'var(--text-main)'
+                                }}
                             />
                         </div>
                     </div>
 
-                    <div className="flex-col gap-2">
-                        <label className="text-sm font-medium text-muted" style={{ marginLeft: '4px' }}>Contraseña</label>
-                        <div className="flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.9)',
-                                border: '1px solid transparent',
-                            }}>
-                            <Lock size={18} color="#475569" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                                <Lock size={20} />
+                            </div>
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className="bg-transparent border-none w-full outline-none text-sm"
-                                style={{ color: '#000000' }}
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 required
+                                placeholder="Contraseña"
+                                className="form-input"
+                                style={{
+                                    paddingLeft: '3rem',
+                                    paddingRight: '3rem',
+                                    background: 'var(--bg-hover)',
+                                    border: '1px solid var(--border-color)',
+                                    color: 'var(--text-main)'
+                                }}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="bg-transparent border-none cursor-pointer hover:text-primary transition-colors p-0 flex items-center"
+                                style={{
+                                    position: 'absolute',
+                                    right: '1rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--text-muted)',
+                                    cursor: 'pointer'
+                                }}
                             >
-                                {showPassword ? <EyeOff size={18} color="#475569" /> : <Eye size={18} color="#475569" />}
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
                     </div>
 
                     <button
                         type="submit"
-                        className="btn btn-primary w-full justify-center"
+                        className="btn btn-primary"
                         disabled={isLoading}
                         style={{
-                            marginTop: '1.5rem',
+                            width: '100%',
                             padding: '1rem',
                             fontSize: '1rem',
-                            letterSpacing: '0.5px'
+                            justifyContent: 'center',
+                            marginTop: '0.5rem'
                         }}
                     >
-                        {isLoading ? 'Verificando...' : 'Iniciar Sesión'}
-                        {!isLoading && <ArrowRight size={20} />}
+                        {isLoading ? (
+                            <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                        ) : (
+                            <>
+                                Iniciar Sesión
+                                <ArrowRight size={18} />
+                            </>
+                        )}
+                        <style>{`
+                            @keyframes spin { to { transform: rotate(360deg); } }
+                        `}</style>
                     </button>
+
+                    <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            ¿Problemas para acceder? Contacta a un <span style={{ color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}>administrador</span>.
+                        </p>
+                    </div>
                 </form>
             </motion.div>
+
+            <div style={{ position: 'absolute', bottom: '1rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', width: '100%', textAlign: 'center' }}>
+
+            </div>
         </div>
     );
 };

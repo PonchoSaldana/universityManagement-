@@ -42,10 +42,10 @@ router.post('/', (req, res) => {
     });
 });
 
-// Delete a student
-router.delete('/:id', (req, res) => {
+// Update a student
+router.put('/:id', (req, res) => {
     const studentId = req.params.id;
-
+    const { name, email, matricula, username, grade, password } = req.body;
 
     const findUserQuery = 'SELECT user_id FROM students WHERE id = ?';
     db.query(findUserQuery, [studentId], (err, results) => {
@@ -53,11 +53,63 @@ router.delete('/:id', (req, res) => {
         if (results.length === 0) return res.status(404).json({ error: 'Student not found' });
 
         const userId = results[0].user_id;
-        const deleteUserQuery = 'DELETE FROM users WHERE id = ?';
 
-        db.query(deleteUserQuery, [userId], (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: 'Student deleted successfully' });
+        // Update user data
+        let updateUserQuery = 'UPDATE users SET name = ?, email = ?, username = ?';
+        const userParams = [name, email, username];
+
+        if (password && password.trim() !== '') {
+            updateUserQuery += ', password = ?';
+            userParams.push(password);
+        }
+
+        updateUserQuery += ' WHERE id = ?';
+        userParams.push(userId);
+
+        db.query(updateUserQuery, userParams, (err) => {
+            if (err) return res.status(500).json({ error: 'Error updating user: ' + err.message });
+
+            // Update student specific data
+            const updateStudentQuery = 'UPDATE students SET matricula = ?, grade = ? WHERE id = ?';
+            db.query(updateStudentQuery, [matricula, grade, studentId], (err) => {
+                if (err) return res.status(500).json({ error: 'Error updating student details: ' + err.message });
+
+                res.json({
+                    id: studentId,
+                    userId,
+                    name,
+                    email,
+                    matricula,
+                    username,
+                    grade
+                });
+            });
+        });
+    });
+});
+
+// Delete a student
+router.delete('/:id', (req, res) => {
+    const studentId = req.params.id;
+
+    const findUserQuery = 'SELECT user_id FROM students WHERE id = ?';
+    db.query(findUserQuery, [studentId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(404).json({ error: 'Student not found' });
+
+        const userId = results[0].user_id;
+
+        // Delete enrollments first to avoid foreign key constraint fail
+        const deleteEnrollmentsQuery = 'DELETE FROM enrollments WHERE student_id = ?';
+        db.query(deleteEnrollmentsQuery, [studentId], (err) => {
+            if (err) return res.status(500).json({ error: 'Error deleting enrollments: ' + err.message });
+
+            // Now delete the user (will cascade delete student record)
+            const deleteUserQuery = 'DELETE FROM users WHERE id = ?';
+            db.query(deleteUserQuery, [userId], (err, result) => {
+                if (err) return res.status(500).json({ error: 'Error deleting user: ' + err.message });
+                res.json({ message: 'Student deleted successfully' });
+            });
         });
     });
 });

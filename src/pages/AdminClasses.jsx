@@ -56,16 +56,16 @@ const AdminClasses = () => {
             <div className="glass-panel" style={{ overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr style={{ borderBottom: '1px solid var(--glass-border)', textAlign: 'left' }}>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Materia</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Docente</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Horario</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Salón</th>
+                        <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
+                            <th className="p-4 text-muted">Materia</th>
+                            <th className="p-4 text-muted">Docente</th>
+                            <th className="p-4 text-muted">Horario</th>
+                            <th className="p-4 text-muted">Salón</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredClasses.map((cls) => (
-                            <tr key={cls.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                            <tr key={cls.id} className="border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
                                 <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <BookOpen size={16} color="white" />
@@ -91,54 +91,50 @@ const AdminClasses = () => {
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Materia">
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Nombre de la Materia</label>
+                        <label className="block mb-2 text-sm text-muted">Nombre de la Materia</label>
                         <input
                             type="text"
                             required
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder="Ej. Matemáticas Avanzadas"
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Docente Asignado</label>
+                        <label className="block mb-2 text-sm text-muted">Docente Asignado</label>
                         <select
                             required
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.teacher_id}
                             onChange={(e) => setFormData({ ...formData, teacher_id: e.target.value })}
                         >
-                            <option value="" style={{ color: 'black' }}>Seleccionar Docente</option>
+                            <option value="">Seleccionar Docente</option>
                             {teachers.map(teacher => (
-                                <option key={teacher.id} value={teacher.id} style={{ color: 'black' }}>
+                                <option key={teacher.id} value={teacher.id}>
                                     {teacher.name} ({teacher.subject})
                                 </option>
                             ))}
                         </select>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Días</label>
+                            <label className="block mb-2 text-sm text-muted">Días</label>
                             <input
                                 type="text"
-                                className="glass-panel"
-                                style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                                className="form-input"
                                 value={formData.days}
                                 onChange={(e) => setFormData({ ...formData, days: e.target.value })}
                                 placeholder="Ej. Lun - Mie"
                             />
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Horario</label>
+                            <label className="block mb-2 text-sm text-muted">Horario</label>
                             <input
                                 type="text"
-                                className="glass-panel"
-                                style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                                className="form-input"
                                 value={formData.time}
                                 onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                                 placeholder="Ej. 8:00 - 10:00"
@@ -146,17 +142,16 @@ const AdminClasses = () => {
                         </div>
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Salón</label>
+                        <label className="block mb-2 text-sm text-muted">Salón</label>
                         <input
                             type="text"
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.room}
                             onChange={(e) => setFormData({ ...formData, room: e.target.value })}
                             placeholder="Ej. A-101"
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', justifyContent: 'center' }}>
+                    <button type="submit" className="btn btn-primary mt-4 justify-center">
                         Guardar Materia
                     </button>
                 </form>

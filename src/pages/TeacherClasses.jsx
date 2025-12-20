@@ -129,22 +129,21 @@ const TeacherClasses = () => {
                 </div>
 
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Subir Material">
-                    <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <form onSubmit={handleUpload} className="flex flex-col gap-4">
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Título del Material</label>
+                            <label className="block mb-2 text-sm text-muted">Título del Material</label>
                             <input
                                 type="text"
                                 required
-                                className="glass-panel"
-                                style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                                className="form-input"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 placeholder="Ej. Guía de Estudio"
                             />
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Seleccionar Archivo</label>
-                            <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block', width: '100%' }}>
+                            <label className="block mb-2 text-sm text-muted">Seleccionar Archivo</label>
+                            <div className="relative overflow-hidden inline-block w-full">
                                 <input
                                     type="file"
                                     required
@@ -159,19 +158,11 @@ const TeacherClasses = () => {
                                             });
                                         }
                                     }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.75rem',
-                                        background: 'rgba(0,0,0,0.2)',
-                                        border: '1px solid var(--glass-border)',
-                                        borderRadius: '12px',
-                                        color: 'var(--text-muted)',
-                                        cursor: 'pointer'
-                                    }}
+                                    className="form-input cursor-pointer"
                                 />
                             </div>
                         </div>
-                        <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', justifyContent: 'center' }}>
+                        <button type="submit" className="btn btn-primary mt-4 justify-center">
                             Subir Archivo
                         </button>
                     </form>
@@ -208,7 +199,7 @@ const TeacherClasses = () => {
                         <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{cls.name}</h2>
                         <p style={{ color: 'var(--text-muted)' }}>{cls.room} • {cls.studentCount} Alumnos</p>
 
-                        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                             {Array.isArray(cls.days) ? cls.days.map(day => (
                                 <span key={day} style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }}>
                                     {day}

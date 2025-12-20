@@ -43,7 +43,7 @@ const StudentDashboard = () => {
         <div className="animate-fade-in">
             <header style={{ marginBottom: '2rem' }}>
                 <h1>Hola, {user?.name || 'Alumno'}</h1>
-                <p style={{ color: 'var(--text-muted)' }}>Alumno de {user?.grade || '10° Grado'}</p>
+                <p style={{ color: 'var(--text-muted)' }}>Alumno de {currentStudent?.grade || user?.grade || '10° Grado'}</p>
             </header>
 
             <div className="card-grid">

@@ -52,18 +52,9 @@ const Layout = () => {
     return (
         <div className="app-container">
             <nav className="navbar">
-                <div className="flex items-center gap-4">
-                    <div style={{
-                        background: 'var(--primary)',
-                        padding: '0.5rem',
-                        borderRadius: '8px',
-                        display: 'flex'
-                    }}>
-                        <School color="white" size={20} />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-sm" style={{ fontSize: '1rem' }}>Universidad Elite</h3>
-                    </div>
+                <div className="flex items-center gap-3">
+                    <School color="var(--primary)" size={32} />
+                    <h3 className="font-bold text-lg">Universidad Elite</h3>
                 </div>
 
                 <div className="nav-links">
@@ -80,28 +71,37 @@ const Layout = () => {
                     ))}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="flex-col items-end user-info">
-                            <p className="text-sm font-bold">{user.name}</p>
-                            <p className="text-sm text-muted" style={{ textTransform: 'capitalize', fontSize: '0.75rem' }}>
-                                {user.role === 'student' ? 'Alumno' : (user.role === 'teacher' ? 'Docente' : 'Administrador')}
-                            </p>
-                        </div>
-                        <div className="rounded-full flex items-center justify-center font-bold text-white"
-                            style={{
-                                width: '36px',
-                                height: '36px',
-                                background: 'var(--primary)',
-                                fontSize: '0.9rem'
-                            }}>
-                            {user.name.charAt(0)}
+                <div className="sidebar-footer">
+                    <div className="flex items-center justify-between w-full mb-4">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            <div className="rounded-full w-8 h-8 flex items-center justify-center font-bold text-white bg-primary text-xs flex-shrink-0" style={{ backgroundColor: 'var(--primary)' }}>
+                                {user.name.charAt(0)}
+                            </div>
+                            <div className="flex-col items-start user-info overflow-hidden">
+                                <p className="text-sm font-medium truncate w-full">{user.name}</p>
+                                <p className="text-xs text-muted capitalize">
+                                    {user.role === 'student' ? 'Alumno' : (user.role === 'teacher' ? 'Docente' : 'Admin')}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 0.5rem' }}></div>
-                    <button onClick={handleLogout} className="btn-ghost" title="Cerrar Sesión">
-                        <LogOut size={20} />
-                    </button>
+
+                    <div className="w-full pt-4 border-t border-color mt-auto" style={{ borderColor: 'var(--border-color)' }}>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-full transition-all duration-200 group relative overflow-hidden"
+                            style={{
+                                background: '#fee2e2', // Pastel red background
+                                color: '#ef4444',      // Red text
+                                border: '1px solid #fecaca',
+                                fontSize: '0.85rem'
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+                            <LogOut size={16} className="transition-transform group-hover:-translate-x-1" />
+                            <span className="font-semibold">Cerrar Sesión</span>
+                        </button>
+                    </div>
                 </div>
             </nav>
 

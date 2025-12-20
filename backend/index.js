@@ -7,6 +7,7 @@ const teachersRoutes = require('./routes/teachers');
 const classesRoutes = require('./routes/classes');
 const announcementsRoutes = require('./routes/announcements');
 const authRoutes = require('./routes/auth');
+require('./services/cleanupService'); // Iniciar servicio de limpieza de anuncios
 
 dotenv.config();
 

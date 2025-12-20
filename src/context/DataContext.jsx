@@ -77,12 +77,26 @@ export const DataProvider = ({ children }) => {
         }
     };
 
-    const updateStudent = (id, updatedData) => {
-        // TODO: Implement API update
-        setData(prev => ({
-            ...prev,
-            students: prev.students.map(s => s.id === id ? { ...s, ...updatedData } : s)
-        }));
+    const updateStudent = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_URL}/students/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+            if (response.ok) {
+                const updatedStudent = await response.json();
+                setData(prev => ({
+                    ...prev,
+                    students: prev.students.map(s => s.id === id ? { ...s, ...updatedStudent } : s)
+                }));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error updating student:', error);
+            return false;
+        }
     };
 
     const deleteStudent = async (id) => {
@@ -199,6 +213,26 @@ export const DataProvider = ({ children }) => {
         }
     };
 
+    const unenrollStudent = async (enrollmentId) => {
+        try {
+            const response = await fetch(`${API_URL}/classes/enrollments/${enrollmentId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                setData(prev => ({
+                    ...prev,
+                    enrollments: prev.enrollments.filter(e => e.id !== enrollmentId)
+                }));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error unenrolling student:', error);
+            return false;
+        }
+    };
+
     const addClass = async (classData) => {
         try {
             const response = await fetch(`${API_URL}/classes`, {
@@ -232,6 +266,47 @@ export const DataProvider = ({ children }) => {
         }
     };
 
+    const updateTeacher = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_URL}/teachers/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+            if (response.ok) {
+                const updatedTeacher = await response.json();
+                setData(prev => ({
+                    ...prev,
+                    teachers: prev.teachers.map(t => t.id === id ? { ...t, ...updatedTeacher } : t)
+                }));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error updating teacher:', error);
+            return false;
+        }
+    };
+
+    const deleteTeacher = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}/teachers/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                setData(prev => ({
+                    ...prev,
+                    teachers: prev.teachers.filter(t => t.id !== id),
+                    // Also clear classes assigned to this teacher if backend handles it or we refresh
+                }));
+                // Ideally refresh classes to see updated teacher assignments (null or gone)
+                fetchData();
+            }
+        } catch (error) {
+            console.error('Error deleting teacher:', error);
+        }
+    };
+
     return (
         <DataContext.Provider value={{
             ...data,
@@ -239,11 +314,14 @@ export const DataProvider = ({ children }) => {
             updateStudent,
             deleteStudent,
             addTeacher,
+            updateTeacher,
+            deleteTeacher,
             addClass,
             addAnnouncement,
             addMaterial,
             enrollStudent,
-            updateGrade
+            updateGrade,
+            unenrollStudent
         }}>
             {children}
         </DataContext.Provider>

@@ -1,83 +1,154 @@
 import React, { useState } from 'react';
-import { Users, Search, Plus, BookOpen, Eye, EyeOff } from 'lucide-react';
+import { Users, Search, Plus, BookOpen, Eye, EyeOff, Trash2, Pencil } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import Modal from '../components/Modal';
+import ConfirmModal from '../components/ConfirmModal';
+import { useToast } from '../context/ToastContext';
 
 const AdminTeachers = () => {
-    const { teachers, addTeacher } = useData();
+    const { teachers, addTeacher, updateTeacher, deleteTeacher } = useData();
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentTeacherId, setCurrentTeacherId] = useState(null);
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', username: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
+
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+    const { addToast } = useToast();
 
     const filteredTeachers = teachers.filter(teacher =>
         teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         teacher.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        addTeacher(formData);
+    const resetForm = () => {
         setFormData({ name: '', email: '', subject: '', username: '', password: '' });
-        setIsModalOpen(false);
+        setIsEditing(false);
+        setCurrentTeacherId(null);
+    };
+
+    const handleOpenModal = () => {
+        resetForm();
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (teacher) => {
+        setFormData({
+            name: teacher.name,
+            email: teacher.email,
+            subject: teacher.subject,
+            username: teacher.username || '',
+            password: ''
+        });
+        setCurrentTeacherId(teacher.id);
+        setIsEditing(true);
+        setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (isEditing) {
+                await updateTeacher(currentTeacherId, formData);
+                addToast('Docente actualizado correctamente', 'success');
+            } else {
+                await addTeacher(formData);
+                addToast('Docente registrado correctamente', 'success');
+            }
+            setIsModalOpen(false);
+            resetForm();
+        } catch (error) {
+            addToast('Error al guardar el docente', 'error');
+        }
+    };
+
+    const handleDeleteClick = (teacherId) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Eliminar Docente',
+            message: '¿Estás seguro de eliminar este docente? Esta acción no se puede deshacer.',
+            onConfirm: async () => {
+                await deleteTeacher(teacherId);
+                addToast('Docente eliminado correctamente', 'success');
+            }
+        });
     };
 
     return (
         <div className="animate-fade-in">
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="mb-8 flex justify-between items-center">
                 <div>
                     <h1>Gestión de Docentes</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>{teachers.length} docentes activos</p>
+                    <p className="text-muted">{teachers.length} docentes activos</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+                <button className="btn btn-primary" onClick={handleOpenModal}>
                     <Plus size={20} />
                     Nuevo Docente
                 </button>
             </header>
 
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1rem', borderRadius: '8px' }}>
-                    <Search size={20} color="var(--text-muted)" />
+            <div className="card p-6 mb-8">
+                <div className="flex items-center gap-4 p-3 rounded-lg" style={{ background: 'var(--bg-hover)' }}>
+                    <Search size={20} className="text-muted" />
                     <input
                         type="text"
                         placeholder="Buscar por nombre o materia..."
-                        style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none' }}
+                        className="w-full bg-transparent border-none outline-none"
+                        style={{ color: 'var(--text-main)' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="glass-panel" style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="card overflow-x-auto">
+                <table className="w-full border-collapse">
                     <thead>
-                        <tr style={{ borderBottom: '1px solid var(--glass-border)', textAlign: 'left' }}>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Nombre</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Materia Principal</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Email</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Estado</th>
+                        <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
+                            <th className="p-4 text-muted font-medium">Nombre</th>
+                            <th className="p-4 text-muted font-medium">Materia Principal</th>
+                            <th className="p-4 text-muted font-medium">Email</th>
+                            <th className="p-4 text-muted font-medium">Estado</th>
+                            <th className="p-4 text-muted font-medium">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredTeachers.map((teacher) => (
-                            <tr key={teacher.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                                <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <tr key={teacher.id} className="border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
+                                <td className="p-4 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0">
                                         {teacher.name.charAt(0)}
                                     </div>
-                                    {teacher.name}
+                                    <span className="font-medium">{teacher.name}</span>
                                 </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <BookOpen size={16} color="var(--text-muted)" />
+                                <td className="p-4">
+                                    <div className="flex items-center gap-2">
+                                        <BookOpen size={16} className="text-muted" />
                                         {teacher.subject}
                                     </div>
                                 </td>
-                                <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>{teacher.email}</td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontSize: '0.85rem' }}>
+                                <td className="p-4 text-muted">{teacher.email}</td>
+                                <td className="p-4">
+                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
                                         Activo
                                     </span>
+                                </td>
+                                <td className="p-4 flex gap-2">
+                                    <button
+                                        onClick={() => handleEditClick(teacher)}
+                                        className="btn-ghost p-2 text-primary hover:bg-indigo-50 rounded-lg transition-colors"
+                                        title="Editar"
+                                    >
+                                        <Pencil size={18} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteClick(teacher.id)}
+                                        className="btn-ghost p-2 text-error hover:bg-red-50 rounded-lg transition-colors"
+                                        title="Eliminar"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -85,48 +156,45 @@ const AdminTeachers = () => {
                 </table>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Registrar Nuevo Docente">
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "Editar Docente" : "Registrar Nuevo Docente"}>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Nombre Completo</label>
+                        <label className="block mb-2 text-sm text-muted">Nombre Completo</label>
                         <input
                             type="text"
                             required
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Usuario</label>
+                            <label className="block mb-2 text-sm text-muted">Usuario</label>
                             <input
                                 type="text"
                                 required
-                                className="glass-panel"
-                                style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                                className="form-input"
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                 placeholder="Ej. proferuiz"
                             />
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Contraseña</label>
-                            <div style={{ position: 'relative' }}>
+                            <label className="block mb-2 text-sm text-muted">Contraseña {isEditing && <span className="text-xs">(Dejar vacío para mantener)</span>}</label>
+                            <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
-                                    required
-                                    className="glass-panel"
-                                    style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                                    required={!isEditing}
+                                    className="form-input"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    placeholder="••••••"
+                                    placeholder={isEditing ? "••••••" : "••••••"}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main"
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -134,32 +202,37 @@ const AdminTeachers = () => {
                         </div>
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Email</label>
+                        <label className="block mb-2 text-sm text-muted">Email</label>
                         <input
                             type="email"
                             required
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Materia</label>
+                        <label className="block mb-2 text-sm text-muted">Materia</label>
                         <input
                             type="text"
                             required
-                            className="glass-panel"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white', background: 'rgba(0,0,0,0.2)' }}
+                            className="form-input"
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', justifyContent: 'center' }}>
-                        Guardar Docente
+                    <button type="submit" className="btn btn-primary mt-4 justify-center">
+                        {isEditing ? "Actualizar Docente" : "Guardar Docente"}
                     </button>
                 </form>
             </Modal>
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div >
     );
 };

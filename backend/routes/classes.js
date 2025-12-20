@@ -65,4 +65,15 @@ router.put('/enrollments/:id/grade', (req, res) => {
     });
 });
 
+// Delete enrollment (Unenroll student)
+router.delete('/enrollments/:id', (req, res) => {
+    const enrollmentId = req.params.id;
+    const query = 'DELETE FROM enrollments WHERE id = ?';
+    db.query(query, [enrollmentId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ message: 'Enrollment not found' });
+        res.json({ message: 'Enrollment deleted successfully' });
+    });
+});
+
 module.exports = router;
