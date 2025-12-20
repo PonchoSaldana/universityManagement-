@@ -236,7 +236,7 @@ tr:hover td {
 
 /* Secondary Button Upgrade */
 .btn-secondary {
-  background: white;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-main);
 }
@@ -257,6 +257,27 @@ tr:hover td {
 .btn-ghost:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
+}
+
+/* Missing Utilities */
+.bg-transparent {
+  background-color: transparent;
+}
+
+.border-none {
+  border: none;
+}
+
+.outline-none {
+  outline: none;
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.text-main {
+  color: var(--text-main);
 }
 
 /* Typography Enhancements */
