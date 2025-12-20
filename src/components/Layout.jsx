@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from './ConfirmModal';
 import {
     LayoutDashboard,
     Users,
@@ -14,9 +15,15 @@ import {
 const Layout = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [confirmLogout, setConfirmLogout] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogoutClick = () => {
+        setConfirmLogout(true);
+    };
+
+    const performLogout = () => {
         logout();
+        setConfirmLogout(false);
         navigate('/');
     };
 
@@ -59,7 +66,7 @@ const Layout = () => {
 
                 {/* Mobile Logout Button (Visible only on mobile via CSS) */}
                 <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="mobile-logout-btn"
                     style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}
                 >
@@ -97,7 +104,7 @@ const Layout = () => {
 
                     <div className="w-full pt-4 border-t border-color mt-auto" style={{ borderColor: 'var(--border-color)' }}>
                         <button
-                            onClick={handleLogout}
+                            onClick={handleLogoutClick}
                             className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-full transition-all duration-200 group relative overflow-hidden"
                             style={{
                                 background: '#fee2e2', // Pastel red background
@@ -117,6 +124,14 @@ const Layout = () => {
             <main className="main-content">
                 <Outlet />
             </main>
+
+            <ConfirmModal
+                isOpen={confirmLogout}
+                onClose={() => setConfirmLogout(false)}
+                onConfirm={performLogout}
+                title="Cerrar Sesión"
+                message="¿Estás seguro de que deseas cerrar sesión? Tendrás que volver a ingresar tus credenciales."
+            />
         </div>
     );
 };
