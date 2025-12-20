@@ -79,7 +79,7 @@ const Login = () => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
                         style={{
-                            background: 'var(--primary)',
+                            background: '#4f46e5', // Primary Color
                             color: 'white',
                             padding: '1rem',
                             borderRadius: '16px',
@@ -89,8 +89,8 @@ const Login = () => {
                     >
                         <School size={40} />
                     </motion.div>
-                    <h1 style={{ color: 'var(--text-main)', fontSize: '2rem', marginBottom: '0.25rem' }}>Universidad Elite</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Plataforma Académica Digital</p>
+                    <h1 style={{ color: '#0f172a', fontSize: '2rem', marginBottom: '0.25rem' }}>Universidad Elite</h1>
+                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Plataforma Académica Digital</p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -117,7 +117,7 @@ const Login = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}>
                                 <User size={20} />
                             </div>
                             <input
@@ -130,9 +130,9 @@ const Login = () => {
                                 className="form-input"
                                 style={{
                                     paddingLeft: '3rem',
-                                    background: 'var(--bg-hover)',
-                                    border: '1px solid var(--border-color)',
-                                    color: 'var(--text-main)'
+                                    background: '#f8fafc',
+                                    border: '1px solid #e2e8f0',
+                                    color: '#0f172a'
                                 }}
                             />
                         </div>
@@ -140,7 +140,7 @@ const Login = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}>
                                 <Lock size={20} />
                             </div>
                             <input
@@ -153,9 +153,9 @@ const Login = () => {
                                 style={{
                                     paddingLeft: '3rem',
                                     paddingRight: '3rem',
-                                    background: 'var(--bg-hover)',
-                                    border: '1px solid var(--border-color)',
-                                    color: 'var(--text-main)'
+                                    background: '#f8fafc',
+                                    border: '1px solid #e2e8f0',
+                                    color: '#0f172a'
                                 }}
                             />
                             <button
@@ -168,7 +168,7 @@ const Login = () => {
                                     transform: 'translateY(-50%)',
                                     background: 'none',
                                     border: 'none',
-                                    color: 'var(--text-muted)',
+                                    color: '#64748b',
                                     cursor: 'pointer'
                                 }}
                             >
@@ -186,7 +186,9 @@ const Login = () => {
                             padding: '1rem',
                             fontSize: '1rem',
                             justifyContent: 'center',
-                            marginTop: '0.5rem'
+                            marginTop: '0.5rem',
+                            background: '#4f46e5',
+                            color: 'white'
                         }}
                     >
                         {isLoading ? (
@@ -203,8 +205,8 @@ const Login = () => {
                     </button>
 
                     <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            ¿Problemas para acceder? Contacta a un <span style={{ color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}>administrador</span>.
+                        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                            ¿Problemas para acceder? Contacta a un <span style={{ color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline' }}>administrador</span>.
                         </p>
                     </div>
                 </form>

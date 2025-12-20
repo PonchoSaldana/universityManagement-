@@ -537,6 +537,10 @@ h3 {
   animation: fadeIn 0.4s ease-out forwards;
 }
 
+.mobile-logout-btn {
+  display: none;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .app-container {
@@ -600,6 +604,10 @@ h3 {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-logout-btn {
+    display: block;
   }
 }
 

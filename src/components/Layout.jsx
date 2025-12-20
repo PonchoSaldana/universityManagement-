@@ -57,6 +57,15 @@ const Layout = () => {
                     <h3 className="font-bold text-lg">Universidad Elite</h3>
                 </div>
 
+                {/* Mobile Logout Button (Visible only on mobile via CSS) */}
+                <button
+                    onClick={handleLogout}
+                    className="mobile-logout-btn"
+                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}
+                >
+                    <LogOut size={24} />
+                </button>
+
                 <div className="nav-links">
                     {getNavItems().map((item) => (
                         <NavLink
