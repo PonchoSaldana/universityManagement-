@@ -47,7 +47,7 @@ const TeacherClasses = () => {
 
         return (
             <div className="animate-fade-in">
-                <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                     <button
                         onClick={() => setSelectedClass(null)}
                         className="btn btn-secondary"
@@ -55,15 +55,15 @@ const TeacherClasses = () => {
                         ← Volver
                     </button>
                     <div>
-                        <h1>{selectedClass.name}</h1>
+                        <h1 style={{ wordBreak: 'break-word', fontSize: 'clamp(1.5rem, 5vw, 2.25rem)' }}>{selectedClass.name}</h1>
                         <p style={{ color: 'var(--text-muted)' }}>{selectedClass.room} • {selectedClass.time}</p>
                     </div>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+                <div className="dashboard-grid">
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2>Material de Clase</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Material de Clase</h2>
                             <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
                                 <Upload size={18} />
                                 Subir Archivo
@@ -73,26 +73,27 @@ const TeacherClasses = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {classMaterials.length > 0 ? (
                                 classMaterials.map((material) => (
-                                    <div key={material.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div key={material.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '200px' }}>
                                             <div style={{
                                                 width: '48px', height: '48px',
                                                 borderRadius: '12px',
                                                 background: material.type === 'pdf' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                color: material.type === 'pdf' ? '#ef4444' : '#3b82f6'
+                                                color: material.type === 'pdf' ? '#ef4444' : '#3b82f6',
+                                                flexShrink: 0
                                             }}>
                                                 <FileText size={24} />
                                             </div>
-                                            <div>
-                                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{material.title}</h3>
+                                            <div style={{ flex: 1 }}>
+                                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', wordBreak: 'break-word' }}>{material.title}</h3>
                                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                                     {new Date(material.date).toLocaleDateString()} • {material.size}
                                                 </p>
                                             </div>
                                         </div>
                                         <a
-                                            href={`http://localhost:3000${material.url}`}
+                                            href={`${import.meta.env.VITE_API_URL}${material.url}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="btn btn-secondary"
