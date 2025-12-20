@@ -3,19 +3,26 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306,
+const config = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     ssl: {
         rejectUnauthorized: false
     }
-});
+};
+
+if (process.env.DATABASE_URL) {
+    config.uri = process.env.DATABASE_URL;
+} else {
+    config.host = process.env.DB_HOST;
+    config.user = process.env.DB_USER;
+    config.password = process.env.DB_PASSWORD;
+    config.database = process.env.DB_NAME;
+    config.port = process.env.DB_PORT || 3306;
+}
+
+const pool = mysql.createPool(config);
 
 pool.getConnection((err, connection) => {
     if (err) {
