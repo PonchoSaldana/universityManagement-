@@ -37,42 +37,49 @@ const StudentSubjects = () => {
                 <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button
                         onClick={() => setSelectedClass(null)}
-                        className="btn btn-secondary"
+                        className="btn"
+                        style={{
+                            background: 'var(--bg-hover)',
+                            color: 'var(--text-main)',
+                            border: '1px solid var(--border-color)',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem'
+                        }}
                     >
-                        ← Volver
+                        <span>←</span> Volver
                     </button>
                     <div>
-                        <h1>{selectedClass.name}</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>{selectedClass.room} • {selectedClass.time}</p>
+                        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>{selectedClass.name}</h1>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{selectedClass.room} • {selectedClass.time}</p>
                     </div>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+                <div className="dashboard-grid">
                     <div>
-                        <h2 style={{ marginBottom: '1.5rem' }}>Material de Clase</h2>
+                        <h2 style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>Material de Clase</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {classMaterials.length > 0 ? (
                                 classMaterials.map((material) => (
-                                    <div key={material.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div key={material.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', overflow: 'hidden' }}>
                                             <div style={{
                                                 width: '48px', height: '48px',
                                                 borderRadius: '12px',
                                                 background: material.type === 'pdf' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                color: material.type === 'pdf' ? '#ef4444' : '#3b82f6'
+                                                color: material.type === 'pdf' ? '#ef4444' : '#3b82f6',
+                                                flexShrink: 0
                                             }}>
                                                 <FileText size={24} />
                                             </div>
-                                            <div>
-                                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{material.title}</h3>
-                                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                                                    {new Date(material.date).toLocaleDateString()} • {material.size}
+                                            <div style={{ minWidth: 0 }}>
+                                                <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{material.title}</h3>
+                                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                    {new Date(material.date).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         </div>
                                         <a
-                                            href={`http://localhost:3000${material.url}`}
+                                            href={material.url.startsWith('http') ? material.url : `${import.meta.env.VITE_API_URL || ''}${material.url}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="btn btn-secondary"
@@ -92,14 +99,14 @@ const StudentSubjects = () => {
 
                     <div>
                         <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                            <h3>Profesor</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Profesor</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
                                     {teacher?.name.charAt(0) || 'P'}
                                 </div>
-                                <div>
-                                    <p style={{ fontWeight: '500' }}>{teacher?.name || 'Profesor Asignado'}</p>
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{teacher?.email || 'docente@school.edu'}</p>
+                                <div style={{ overflow: 'hidden' }}>
+                                    <p style={{ fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{teacher?.name || 'Profesor Asignado'}</p>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{teacher?.email || 'docente@school.edu'}</p>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +138,9 @@ const StudentSubjects = () => {
                                 <div style={{ padding: '0.75rem', borderRadius: '12px', background: 'rgba(236, 72, 153, 0.2)', color: 'var(--secondary)' }}>
                                     <BookOpen size={24} />
                                 </div>
-                                <ChevronRight color="var(--text-muted)" />
+                                <div style={{ padding: '0.5rem', borderRadius: '50%', background: 'var(--bg-hover)' }}>
+                                    <ChevronRight size={20} color="var(--text-muted)" />
+                                </div>
                             </div>
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{cls.name}</h2>
                             <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{cls.room} • {cls.time}</p>
