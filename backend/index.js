@@ -24,6 +24,7 @@ app.use('/api/announcements', announcementsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users'));
 app.use('/api/materials', require('./routes/materials'));
+app.use('/api/assignments', require('./routes/assignments'));
 app.use('/uploads', express.static('uploads'));
 
 const path = require('path');
@@ -31,7 +32,6 @@ const path = require('path');
 // Servir archivos estáticos del frontend (construcción de producción)
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Manejar cualquier otra ruta devolviendo el index.html (SPA)
 // Manejar cualquier otra ruta devolviendo el index.html (SPA)
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));

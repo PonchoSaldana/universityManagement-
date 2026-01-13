@@ -10,7 +10,9 @@ export const DataProvider = ({ children }) => {
         teachers: [],
         classes: [],
         materials: [],
-        enrollments: []
+        enrollments: [],
+        announcements: [],
+        assignments: [] // Can be populated if we want global access
     });
 
     const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api';
@@ -297,13 +299,74 @@ export const DataProvider = ({ children }) => {
                 setData(prev => ({
                     ...prev,
                     teachers: prev.teachers.filter(t => t.id !== id),
-                    // Also clear classes assigned to this teacher if backend handles it or we refresh
                 }));
-                // Ideally refresh classes to see updated teacher assignments (null or gone)
                 fetchData();
             }
         } catch (error) {
             console.error('Error deleting teacher:', error);
+        }
+    };
+
+    const addAssignment = async (assignmentData) => {
+        try {
+            const response = await fetch(`${API_URL}/assignments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentData)
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Error adding assignment:', error);
+            return false;
+        }
+    };
+
+    const submitAssignment = async (assignmentId, formData) => {
+        try {
+            const response = await fetch(`${API_URL}/assignments/${assignmentId}/submit`, {
+                method: 'POST',
+                body: formData
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Error submitting assignment:', error);
+            return false;
+        }
+    };
+
+    const gradeSubmission = async (submissionId, gradeData) => {
+        try {
+            const response = await fetch(`${API_URL}/assignments/submissions/${submissionId}/grade`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gradeData)
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Error grading submission:', error);
+            return false;
+        }
+    };
+
+    const getAssignments = async (classId) => {
+        try {
+            const response = await fetch(`${API_URL}/assignments/class/${classId}`);
+            if (response.ok) return await response.json();
+            return [];
+        } catch (error) {
+            console.error('Error fetching assignments:', error);
+            return [];
+        }
+    };
+
+    const getSubmissions = async (assignmentId) => {
+        try {
+            const response = await fetch(`${API_URL}/assignments/${assignmentId}/submissions`);
+            if (response.ok) return await response.json();
+            return [];
+        } catch (error) {
+            console.error('Error fetching submissions:', error);
+            return [];
         }
     };
 
@@ -321,7 +384,12 @@ export const DataProvider = ({ children }) => {
             addMaterial,
             enrollStudent,
             updateGrade,
-            unenrollStudent
+            unenrollStudent,
+            addAssignment,
+            submitAssignment,
+            gradeSubmission,
+            getAssignments,
+            getSubmissions
         }}>
             {children}
         </DataContext.Provider>
