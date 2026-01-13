@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, GraduationCap, BookOpen, TrendingUp } from 'lucide-react';
+import { Users, UserRound, GraduationCap, BookOpen, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
@@ -22,9 +22,9 @@ const AdminDashboard = () => {
     };
 
     const stats = [
-        { label: 'Total Alumnos', value: students.length.toString(), icon: GraduationCap, color: '#ec4899' },
-        { label: 'Docentes Activos', value: teachers.length.toString(), icon: Users, color: '#6366f1' },
-        { label: 'Materias', value: classes.length.toString(), icon: BookOpen, color: '#8b5cf6' },
+        { label: 'Total Alumnos', value: students.length.toString(), icon: GraduationCap, color: 'var(--primary)' },
+        { label: 'Docentes Activos', value: teachers.length.toString(), icon: Users, color: 'var(--text-main)' },
+        { label: 'Materias', value: classes.length.toString(), icon: BookOpen, color: 'var(--secondary)' },
     ];
 
     return (
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
                             </div>
                             <div className="p-3 rounded-lg" style={{
                                 background: 'var(--bg-hover)',
-                                color: 'var(--text-main)'
+                                color: stat.color
                             }}>
                                 <stat.icon size={24} />
                             </div>
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
                         {students.slice(0, 5).map((student) => (
                             <div key={student.id} className="flex items-center gap-4 pb-4 border-b last:border-0 last:pb-0">
                                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-hover)' }}>
-                                    <Users size={20} className="text-muted" />
+                                    <UserRound size={20} className="text-muted" />
                                 </div>
                                 <div>
                                     <p className="font-medium">{student.name}</p>

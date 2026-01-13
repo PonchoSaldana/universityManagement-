@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Search, Plus, User } from 'lucide-react';
+import { Library, Search, Plus, UserRound } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import Modal from '../components/Modal';
 
@@ -29,10 +29,10 @@ const AdminClasses = () => {
 
     return (
         <div className="animate-fade-in">
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="flex justify-between items-end mb-8">
                 <div>
-                    <h1>Gestión de Materias</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>{classes.length} materias registradas</p>
+                    <h1 className="mb-2">Gestión de Materias</h1>
+                    <p className="text-muted">{classes.length} materias registradas</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
                     <Plus size={20} />
@@ -40,22 +40,22 @@ const AdminClasses = () => {
                 </button>
             </header>
 
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1rem', borderRadius: '8px' }}>
-                    <Search size={20} color="var(--text-muted)" />
+            <div className="card mb-8 p-6">
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-color)' }}>
+                    <Search size={20} className="text-muted" />
                     <input
                         type="text"
                         placeholder="Buscar por nombre o docente..."
-                        style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none' }}
+                        style={{ background: 'transparent', border: 'none', width: '100%', outline: 'none', color: 'var(--text-main)', fontSize: '1rem' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="glass-panel" style={{ overflow: 'hidden' }}>
-                <div style={{ overflowX: 'auto', width: '100%' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <div className="card overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full">
                         <thead>
                             <tr className="border-b" style={{ borderColor: 'var(--border-color)', textAlign: 'left' }}>
                                 <th className="p-4 text-muted">Materia</th>
@@ -66,23 +66,27 @@ const AdminClasses = () => {
                         </thead>
                         <tbody>
                             {filteredClasses.map((cls) => (
-                                <tr key={cls.id} className="border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
-                                    <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <BookOpen size={16} color="white" />
-                                        </div>
-                                        {cls.name}
-                                    </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <User size={16} color="var(--text-muted)" />
-                                            {cls.teacher_name || 'Sin asignar'}
+                                <tr key={cls.id} className="border-b last:border-0 hover:bg-hover transition-colors" style={{ borderColor: 'var(--bg-hover)' }}>
+                                    <td className="p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: 'var(--primary)' }}>
+                                                <Library size={20} />
+                                            </div>
+                                            <span className="font-medium">{cls.name}</span>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
-                                        {cls.days} {cls.time}
+                                    <td className="p-4">
+                                        <div className="flex items-center gap-2 text-muted">
+                                            <UserRound size={16} />
+                                            <span>{cls.teacher_name || 'Sin asignar'}</span>
+                                        </div>
                                     </td>
-                                    <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                                    <td className="p-4 text-muted">
+                                        <span className="px-2 py-1 rounded-md text-sm" style={{ background: 'var(--bg-hover)' }}>
+                                            {cls.days} • {cls.time}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-muted font-medium">
                                         {cls.room}
                                     </td>
                                 </tr>
@@ -121,7 +125,7 @@ const AdminClasses = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
                             <label className="block mb-2 text-sm text-muted">Días</label>
                             <input

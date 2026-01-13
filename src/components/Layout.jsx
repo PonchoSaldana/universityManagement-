@@ -3,13 +3,14 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from './ConfirmModal';
 import {
-    LayoutDashboard,
-    Users,
-    BookOpen,
+    Home,
+    UserRound,
+    Library,
     GraduationCap,
-    Settings,
+    SlidersHorizontal,
     LogOut,
-    School
+    School,
+    BookOpenCheck
 } from 'lucide-react';
 
 const Layout = () => {
@@ -33,23 +34,23 @@ const Layout = () => {
         switch (user.role) {
             case 'admin':
                 return [
-                    { icon: LayoutDashboard, label: 'Panel General', path: '/admin' },
-                    { icon: Users, label: 'Docentes', path: '/admin/docentes' },
-                    { icon: BookOpen, label: 'Materias', path: '/admin/materias' },
+                    { icon: Home, label: 'Panel General', path: '/admin' },
+                    { icon: UserRound, label: 'Docentes', path: '/admin/docentes' },
+                    { icon: Library, label: 'Materias', path: '/admin/materias' },
                     { icon: GraduationCap, label: 'Alumnos', path: '/admin/alumnos' },
-                    { icon: Settings, label: 'Configuración', path: '/admin/settings' },
+                    { icon: SlidersHorizontal, label: 'Configuración', path: '/admin/settings' },
                 ];
             case 'teacher':
                 return [
-                    { icon: LayoutDashboard, label: 'Mi Panel', path: '/docente' },
-                    { icon: BookOpen, label: 'Mis Clases', path: '/docente/clases' },
-                    { icon: Users, label: 'Mis Alumnos', path: '/docente/alumnos' },
+                    { icon: Home, label: 'Mi Panel', path: '/docente' },
+                    { icon: Library, label: 'Mis Clases', path: '/docente/clases' },
+                    { icon: UserRound, label: 'Mis Alumnos', path: '/docente/alumnos' },
                 ];
             case 'student':
                 return [
-                    { icon: LayoutDashboard, label: 'Mi Panel', path: '/alumno' },
-                    { icon: BookOpen, label: 'Materias', path: '/alumno/materias' },
-                    { icon: GraduationCap, label: 'Calificaciones', path: '/alumno/calificaciones' },
+                    { icon: Home, label: 'Mi Panel', path: '/alumno' },
+                    { icon: Library, label: 'Materias', path: '/alumno/materias' },
+                    { icon: BookOpenCheck, label: 'Calificaciones', path: '/alumno/calificaciones' },
                 ];
             default:
                 return [];
@@ -59,16 +60,16 @@ const Layout = () => {
     return (
         <div className="app-container">
             <nav className="navbar">
-                <div className="flex items-center gap-3">
-                    <School color="var(--primary)" size={32} />
-                    <h3 className="font-bold text-lg">Universidad Elite</h3>
+                <div className="flex items-center gap-3 mb-6">
+                    <School color="var(--primary)" size={32} strokeWidth={1.5} />
+                    <h3 className="font-bold text-lg" style={{ color: 'var(--text-main)' }}>Universidad Elite</h3>
                 </div>
 
-                {/* Mobile Logout Button (Visible only on mobile via CSS) */}
+                {/* Mobile Logout Button */}
                 <button
                     onClick={handleLogoutClick}
                     className="mobile-logout-btn"
-                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer' }}
                 >
                     <LogOut size={24} />
                 </button>
@@ -81,41 +82,48 @@ const Layout = () => {
                             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                             end
                         >
-                            <item.icon size={18} />
+                            <item.icon size={20} strokeWidth={2} />
                             <span>{item.label}</span>
                         </NavLink>
                     ))}
                 </div>
 
                 <div className="sidebar-footer">
-                    <div className="flex items-center justify-between w-full mb-4">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <div className="rounded-full w-8 h-8 flex items-center justify-center font-bold text-white bg-primary text-xs flex-shrink-0" style={{ backgroundColor: 'var(--primary)' }}>
-                                {user.name.charAt(0)}
-                            </div>
-                            <div className="flex-col items-start user-info overflow-hidden">
-                                <p className="text-sm font-medium truncate w-full">{user.name}</p>
-                                <p className="text-xs text-muted capitalize">
-                                    {user.role === 'student' ? 'Alumno' : (user.role === 'teacher' ? 'Docente' : 'Admin')}
-                                </p>
-                            </div>
+                    <div className="flex items-center gap-3 overflow-hidden mb-4 p-2 rounded-lg" style={{ background: 'var(--bg-hover)' }}>
+                        <div className="rounded-full w-10 h-10 flex items-center justify-center font-bold text-white bg-primary text-sm flex-shrink-0" style={{ backgroundColor: 'var(--primary)' }}>
+                            {user.name.charAt(0)}
+                        </div>
+                        <div className="flex-col items-start user-info overflow-hidden">
+                            <p className="text-sm font-semibold truncate w-full" style={{ color: 'var(--text-main)' }}>{user.name}</p>
+                            <p className="text-xs text-muted capitalize">
+                                {user.role === 'student' ? 'Alumno' : (user.role === 'teacher' ? 'Docente' : 'Admin')}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="w-full pt-4 border-t border-color mt-auto" style={{ borderColor: 'var(--border-color)' }}>
+                    <div className="w-full pt-2 mt-auto">
                         <button
                             onClick={handleLogoutClick}
-                            className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-full transition-all duration-200 group relative overflow-hidden"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl transition-all duration-200 group relative overflow-hidden"
                             style={{
-                                background: '#fee2e2', // Pastel red background
-                                color: '#ef4444',      // Red text
-                                border: '1px solid #fecaca',
-                                fontSize: '0.85rem'
+                                background: 'var(--bg-card)',
+                                color: 'var(--text-muted)',
+                                border: '1px solid var(--border-color)',
+                                fontSize: '0.9rem'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.color = 'var(--error)';
+                                e.currentTarget.style.borderColor = 'var(--error)';
+                                e.currentTarget.style.background = '#FEF2F2';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.color = 'var(--text-muted)';
+                                e.currentTarget.style.borderColor = 'var(--border-color)';
+                                e.currentTarget.style.background = 'var(--bg-card)';
                             }}
                         >
-                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
-                            <LogOut size={16} className="transition-transform group-hover:-translate-x-1" />
-                            <span className="font-semibold">Cerrar Sesión</span>
+                            <LogOut size={18} className="transition-transform group-hover:-translate-x-1" />
+                            <span className="font-medium">Cerrar Sesión</span>
                         </button>
                     </div>
                 </div>
