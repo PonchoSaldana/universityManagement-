@@ -30,17 +30,29 @@ router.get('/class/:classId', (req, res) => {
     const query = 'SELECT * FROM assignments WHERE class_id = ? ORDER BY created_at DESC';
     db.query(query, [classId], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+
+        const assignments = results.map(a => ({
+            ...a,
+            file_url: a.file_url ? `/uploads/${path.basename(a.file_url)}` : null
+        }));
+
+        res.json(assignments);
     });
 });
 
 // Create a new assignment
-router.post('/', (req, res) => {
+router.post('/', upload.single('file'), (req, res) => {
     const { class_id, title, description, due_date } = req.body;
-    const query = 'INSERT INTO assignments (class_id, title, description, due_date) VALUES (?, ?, ?, ?)';
-    db.query(query, [class_id, title, description, due_date], (err, result) => {
+    let fileUrl = null;
+
+    if (req.file) {
+        fileUrl = req.file.path.replace(/\\/g, '/');
+    }
+
+    const query = 'INSERT INTO assignments (class_id, title, description, due_date, file_url) VALUES (?, ?, ?, ?, ?)';
+    db.query(query, [class_id, title, description, due_date, fileUrl], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: result.insertId, class_id, title, description, due_date });
+        res.status(201).json({ id: result.insertId, class_id, title, description, due_date, file_url: fileUrl ? `/uploads/${path.basename(fileUrl)}` : null });
     });
 });
 

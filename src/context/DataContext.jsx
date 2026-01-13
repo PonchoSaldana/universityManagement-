@@ -309,11 +309,17 @@ export const DataProvider = ({ children }) => {
 
     const addAssignment = async (assignmentData) => {
         try {
-            const response = await fetch(`${API_URL}/assignments`, {
+            const isFormData = assignmentData instanceof FormData;
+            const options = {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(assignmentData)
-            });
+                body: isFormData ? assignmentData : JSON.stringify(assignmentData)
+            };
+
+            if (!isFormData) {
+                options.headers = { 'Content-Type': 'application/json' };
+            }
+
+            const response = await fetch(`${API_URL}/assignments`, options);
             return response.ok;
         } catch (error) {
             console.error('Error adding assignment:', error);

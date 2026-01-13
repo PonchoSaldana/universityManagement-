@@ -32,7 +32,7 @@ const TeacherClasses = () => {
 
     // Form data
     const [materialForm, setMaterialForm] = useState({ title: '', file: null });
-    const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', due_date: '' });
+    const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', due_date: '', file: null });
 
     // Submissions viewing
     const [currentAssignment, setCurrentAssignment] = useState(null);
@@ -83,13 +83,21 @@ const TeacherClasses = () => {
 
     const handleCreateAssignment = async (e) => {
         e.preventDefault();
-        const success = await addAssignment({
-            class_id: selectedClass.id,
-            ...assignmentForm
-        });
+
+        const formPayload = new FormData();
+        formPayload.append('class_id', selectedClass.id);
+        formPayload.append('title', assignmentForm.title);
+        formPayload.append('description', assignmentForm.description);
+        formPayload.append('due_date', assignmentForm.due_date);
+
+        if (assignmentForm.file) {
+            formPayload.append('file', assignmentForm.file);
+        }
+
+        const success = await addAssignment(formPayload);
 
         if (success) {
-            setAssignmentForm({ title: '', description: '', due_date: '' });
+            setAssignmentForm({ title: '', description: '', due_date: '', file: null });
             setIsAssignmentModalOpen(false);
             loadAssignments();
         }
@@ -217,7 +225,15 @@ const TeacherClasses = () => {
                                         <div className="flex justify-between items-start">
                                             <div style={{ flex: 1 }}>
                                                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{assignment.title}</h3>
-                                                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>{assignment.description}</p>
+                                                <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{assignment.description}</p>
+
+                                                {/* File attachment link if exists */}
+                                                {assignment.file_url && (
+                                                    <a href={`${import.meta.env.VITE_API_URL || ''}${assignment.file_url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary text-sm hover:underline mb-3">
+                                                        <Download size={14} /> Descargar Archivo Adjunto
+                                                    </a>
+                                                )}
+
                                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
                                                     <span style={{ padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)' }}>
                                                         Vence: {new Date(assignment.due_date).toLocaleDateString()}
@@ -268,6 +284,10 @@ const TeacherClasses = () => {
                         <div>
                             <label className="block mb-2 text-sm text-muted">Fecha de Vencimiento</label>
                             <input type="date" className="form-input" required value={assignmentForm.due_date} onChange={e => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })} />
+                        </div>
+                        <div>
+                            <label className="block mb-2 text-sm text-muted">Adjuntar Archivo (Opcional)</label>
+                            <input type="file" className="form-input" onChange={e => setAssignmentForm({ ...assignmentForm, file: e.target.files[0] })} />
                         </div>
                         <button type="submit" className="btn btn-primary justify-center">Crear Tarea</button>
                     </form>
