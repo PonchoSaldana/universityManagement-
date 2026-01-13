@@ -5,16 +5,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads';
+// Ensure uploads directory exists (Absolute path)
+const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Configure multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -52,7 +52,8 @@ router.post('/', upload.single('file'), (req, res) => {
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const fileUrl = req.file.path.replace(/\\/g, '/'); // Normalize path for DB
+    // Construct simplified URL for DB (relative to server root is typical, but we store as uploads/filename here for consistency)
+    const fileUrl = `uploads/${req.file.filename}`;
     const size = (req.file.size / 1024 / 1024).toFixed(2) + ' MB';
     const type = path.extname(req.file.originalname).substring(1); // e.g. 'pdf'
 

@@ -5,16 +5,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads';
+// Ensure uploads directory exists (Absolute path)
+const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Configure multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -43,16 +43,27 @@ router.get('/class/:classId', (req, res) => {
 // Create a new assignment
 router.post('/', upload.single('file'), (req, res) => {
     const { class_id, title, description, due_date } = req.body;
-    let fileUrl = null;
 
+    // Construct simplified URL for DB (relative to server root)
+    let fileUrl = null;
     if (req.file) {
-        fileUrl = req.file.path.replace(/\\/g, '/');
+        fileUrl = `uploads/${req.file.filename}`;
     }
 
     const query = 'INSERT INTO assignments (class_id, title, description, due_date, file_url) VALUES (?, ?, ?, ?, ?)';
     db.query(query, [class_id, title, description, due_date, fileUrl], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: result.insertId, class_id, title, description, due_date, file_url: fileUrl ? `/uploads/${path.basename(fileUrl)}` : null });
+        if (err) {
+            console.error("Error creating assignment:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.status(201).json({
+            id: result.insertId,
+            class_id,
+            title,
+            description,
+            due_date,
+            file_url: fileUrl ? `/${fileUrl}` : null
+        });
     });
 });
 
@@ -60,10 +71,10 @@ router.post('/', upload.single('file'), (req, res) => {
 router.post('/:id/submit', upload.single('file'), (req, res) => {
     const { id } = req.params;
     const { student_id, content } = req.body;
-    let fileUrl = null;
 
+    let fileUrl = null;
     if (req.file) {
-        fileUrl = req.file.path.replace(/\\/g, '/');
+        fileUrl = `uploads/${req.file.filename}`;
     }
 
     const query = 'INSERT INTO assignment_submissions (assignment_id, student_id, content, file_url) VALUES (?, ?, ?, ?)';

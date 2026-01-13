@@ -320,9 +320,14 @@ export const DataProvider = ({ children }) => {
             }
 
             const response = await fetch(`${API_URL}/assignments`, options);
+            if (!response.ok) {
+                // Try to parse error as text to log detailed server error
+                const errorText = await response.text();
+                console.error('Error adding assignment (Server):', errorText);
+            }
             return response.ok;
         } catch (error) {
-            console.error('Error adding assignment:', error);
+            console.error('Error adding assignment (Network/Client):', error);
             return false;
         }
     };

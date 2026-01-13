@@ -8,6 +8,7 @@ const classesRoutes = require('./routes/classes');
 const announcementsRoutes = require('./routes/announcements');
 const authRoutes = require('./routes/auth');
 require('./services/cleanupService'); // Iniciar servicio de limpieza de anuncios
+const path = require('path');
 
 dotenv.config();
 
@@ -25,9 +26,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users'));
 app.use('/api/materials', require('./routes/materials'));
 app.use('/api/assignments', require('./routes/assignments'));
-app.use('/uploads', express.static('uploads'));
 
-const path = require('path');
+// Serve uploads directory from absolute path
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Servir archivos estáticos del frontend (construcción de producción)
 app.use(express.static(path.join(__dirname, '../dist')));
